@@ -1,9 +1,64 @@
 :root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+  color-scheme: dark;
+  background: #02070d;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% -12%, rgba(33, 212, 255, 0.07), transparent 34rem),
+    #02070d;
+  overscroll-behavior-y: none;
+  scrollbar-color: #23364a #050d17;
+}
+
+#root {
+  width: min(100%, 430px);
+  min-height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  background: #050d17;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+[role='tab']:focus {
+  outline: none;
+}
+
+[role='tab']:focus-visible {
+  border-radius: 16px;
+  outline: 1px solid rgba(112, 229, 255, 0.42);
+  outline-offset: -3px;
+}
+
+@media (min-width: 480px) {
+  #root {
+    border-left: 1px solid rgba(112, 229, 255, 0.1);
+    border-right: 1px solid rgba(112, 229, 255, 0.1);
+    box-shadow: 0 0 110px rgba(0, 0, 0, 0.66);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

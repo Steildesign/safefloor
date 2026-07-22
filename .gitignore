@@ -31,12 +31,17 @@ yarn-error.*
 *.pem
 
 # local env files
+.env
+.env.*
+!.env.example
 .env*.local
 
 # typescript
 *.tsbuildinfo
 
-example
+# local browser and design-test artifacts
+.playwright-cli/
+output/
 
 # generated native folders
 /ios

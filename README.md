@@ -1,56 +1,69 @@
-# Welcome to your Expo app 👋
+# SAFEFLOOR · mobiler App-Prototyp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Code-nativer Expo-Prototyp für iOS und Android. Der Browser-Build dient ausschließlich als schmale Handy-Vorschau für UX-Tests; es gibt keine eigenständige Desktop- oder Web-App.
 
-## Get started
+## Live-Demo
 
-1. Install dependencies
+Die klickbare Smartphone-Vorschau wird automatisch über GitHub Pages veröffentlicht:
 
-   ```bash
-   npm install
-   ```
+**[SAFEFLOOR öffnen](https://steildesign.github.io/safefloor/)**
 
-2. Start the app
+Die Web-Demo verwendet bei nativen iOS-Effekten einen visuell abgestimmten Fallback. Ein späterer Development Build beziehungsweise TestFlight-Build bildet die echte iPhone-App ab.
 
-   ```bash
-   npx expo start
-   ```
+## Mobile Product Pass
 
-In the output, you'll find options to open the app in a
+- offizielles SAFEFLOOR-Schutzkern-Logo in allen Markenmomenten
+- isolierte Markenperle als anonymes Profil und ruhige KI-Präsenz
+- phasensynchrones Atemfeld mit reduzierter Bewegungsalternative
+- stilisierte Substanz-Platzhalter mit eindeutiger Prototyp-Kennzeichnung
+- konsequent einspaltige Handy-Oberfläche ohne Desktop-Breakpoints
+- globale mobile Menüebene plus daumenfreundliche Hauptnavigation
+- sanft driftender, reizarm animierter SAFEFLOOR-Hintergrund
+- ablenkungsarmer Atemfokus mit automatisch ausblendender Steuerung
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Start
 
 ```bash
-npm run reset-project
+npm install
+npm run ios
+npm run android
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Lokale Handy-Vorschau im Browser:
 
-### Other setup steps
+```bash
+npm run export:web
+npm run preview
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Klickbare Flows
 
-## Learn more
+- Onboarding und Gastmodus
+- Start, Community-Feed, grobe Kartenvisualisierung und Hinweisdetail
+- dreistufige anonyme Meldung mit lokaler Identitätswarnung
+- Hilfe-Hub, regelbasierter Safety-Check, Atemhilfe und Erdung
+- simulierter, begrenzter KI-Dialog ohne API oder Persistenz
+- Substanzbibliothek und Artikeldetail ohne Dosierungswerte
+- Nachsorge, Ressourcen und Vertrauenspersonen
 
-To learn more about developing your project with Expo, look at the following resources:
+## Wichtiger Prototypstatus
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Es werden keine Meldungen übertragen oder gespeichert.
+- Der Chat verwendet ausschließlich einen lokalen Mock-Service.
+- Wissensinhalte sind Strukturbeispiele und nicht fachlich freigegeben.
+- Karten und Ressourcen sind Demo-Daten.
+- Der Prototyp ersetzt keine medizinische Beratung oder Notfallversorgung.
 
-## Join the community
+## Qualität
 
-Join our community of developers creating universal apps.
+```bash
+npm run check
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Der geprüfte Stand baut 22 statische Web-Routen und durchlief die Kernflüsse im mobilen Browser ohne Konsolenfehler. `npm audit --omit=dev` meldet aktuell keine hohen oder kritischen Schwachstellen; moderate Hinweise stammen aus der Expo-SDK-Werkzeugkette und werden bei SDK-Updates erneut bewertet.
+
+## Architektur
+
+Die sichtbaren Screens verwenden Repository- und Service-Verträge unter `src/services`. Später werden ausschließlich deren Mock-Implementierungen gegen Supabase, CMS und ein serverseitiges KI-Gateway ausgetauscht. Die deterministische Safety-Logik liegt separat unter `src/domain/safety.ts`.
+
+Weitere Entscheidungen: [docs/architecture.md](docs/architecture.md), [docs/prototype-scope.md](docs/prototype-scope.md), [docs/brand-spec.md](docs/brand-spec.md).

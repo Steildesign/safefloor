@@ -1,40 +1,37 @@
 {
   "expo": {
-    "name": "safefloor-prototype",
-    "slug": "safefloor-prototype",
+    "name": "SAFEFLOOR",
+    "slug": "safefloor",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "safefloorprototype",
-    "userInterfaceStyle": "automatic",
-    "ios": {
-      "icon": "./assets/expo.icon"
-    },
+    "icon": "./assets/brand/safefloor-icon.png",
+    "scheme": "safefloor",
+    "userInterfaceStyle": "dark",
+    "ios": { "supportsTablet": false },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#07111D",
+        "foregroundImage": "./assets/brand/safefloor-icon.png"
       },
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/brand/safefloor-icon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#07111D",
+          "image": "./assets/brand/safefloor-icon.png",
+          "imageWidth": 112
         }
       ]
     ],
     "experiments": {
+      "baseUrl": "/safefloor",
       "typedRoutes": true,
       "reactCompiler": true
     }

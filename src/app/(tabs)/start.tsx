@@ -5,7 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AlertCard } from '@/components/alert-card';
 import { BrandMark } from '@/components/brand-mark';
 import { SeoHead } from '@/components/seo-head';
-import { ActionRow, AppMenuButton, AppScreen, Body, BrandWordmark, Button, Card, Chip, SectionTitle, Title } from '@/components/ui';
+import { ActionRow, AppScreen, Body, BrandWordmark, Button, Card, Chip, SectionTitle, Title } from '@/components/ui';
 import { getAlerts } from '@/data/mock';
 import { useI18n } from '@/i18n/provider';
 import { colors, spacing } from '@/theme/tokens';
@@ -18,7 +18,7 @@ export default function StartScreen() {
       <SeoHead title="Start" description="Lokale Hinweise, ruhige Orientierung und schneller Zugang zu SAFEFLOOR Hilfe." noIndex />
       <View style={startStyles.topRow}>
         <BrandWordmark compact />
-        <AppMenuButton />
+        <View style={startStyles.menuPlaceholder} />
       </View>
 
       <View style={startStyles.hero}>
@@ -64,6 +64,7 @@ export default function StartScreen() {
 
 const startStyles = StyleSheet.create({
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: spacing[3], marginBottom: spacing[8] },
+  menuPlaceholder: { width: 44, height: 44 },
   hero: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
   heroCopy: { flex: 1 },
   overline: { color: colors.amber400, fontFamily: 'Inter_600SemiBold', fontSize: 10, letterSpacing: 1.6, marginBottom: spacing[2] },

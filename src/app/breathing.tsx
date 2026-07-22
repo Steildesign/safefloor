@@ -66,7 +66,7 @@ export default function BreathingScreen() {
   };
 
   return (
-    <AppScreen scroll={!started} padded={!started} motion={started ? 'none' : 'subtle'} style={started ? breathingStyles.focusScreen : breathingStyles.screen}>
+    <AppScreen scroll={!started} padded={!started} floatingMenu={!started} motion={started ? 'none' : 'subtle'} style={started ? breathingStyles.focusScreen : breathingStyles.screen}>
       <SeoHead title="Atemhilfe" description="Offlinefähige SAFEFLOOR Atemhilfe mit ruhiger visueller Führung." noIndex />
       {started ? (
         <FocusBreathingSession

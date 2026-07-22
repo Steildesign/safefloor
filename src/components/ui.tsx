@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react-native';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Animated,
@@ -15,7 +15,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   ArrowLeft,
@@ -33,6 +33,7 @@ import {
   UsersRound,
   Wind,
   X,
+  ArrowUp,
 } from 'lucide-react-native';
 import { type Href, router, usePathname } from 'expo-router';
 
@@ -46,12 +47,20 @@ type AppScreenProps = {
   motion?: 'subtle' | 'none';
   scroll?: boolean;
   padded?: boolean;
+  floatingMenu?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
-export function AppScreen({ children, motion = 'subtle', scroll = true, padded = true, style }: AppScreenProps) {
+export function AppScreen({ children, motion = 'subtle', scroll = true, padded = true, floatingMenu = true, style }: AppScreenProps) {
   const [entrance] = useState(() => new Animated.Value(Platform.OS === 'web' || motion === 'none' ? 1 : 0));
+  const [scrollTopMotion] = useState(() => new Animated.Value(0));
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
   const reducedMotion = useReducedMotion();
+  const insets = useSafeAreaInsets();
+  const pathname = usePathname();
+  const { tx } = useI18n();
+  const hasTabBar = ['/start', '/community', '/help', '/knowledge', '/profile'].includes(pathname);
 
   useEffect(() => {
     if (Platform.OS === 'web' || reducedMotion || motion === 'none') {
@@ -65,6 +74,40 @@ export function AppScreen({ children, motion = 'subtle', scroll = true, padded =
       useNativeDriver: true,
     }).start();
   }, [entrance, motion, reducedMotion]);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      scrollTopMotion.setValue(showScrollTop ? 1 : 0);
+      return;
+    }
+    if (showScrollTop) {
+      Animated.spring(scrollTopMotion, {
+        toValue: 1,
+        damping: 13,
+        stiffness: 210,
+        mass: 0.68,
+        useNativeDriver: Platform.OS !== 'web',
+      }).start();
+      return;
+    }
+    Animated.timing(scrollTopMotion, {
+      toValue: 0,
+      duration: 180,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: Platform.OS !== 'web',
+    }).start();
+  }, [reducedMotion, scrollTopMotion, showScrollTop]);
+
+  const handleScroll = ({ nativeEvent }: { nativeEvent: { contentOffset: { y: number }; contentSize: { height: number }; layoutMeasurement: { height: number } } }) => {
+    const { contentOffset, contentSize, layoutMeasurement } = nativeEvent;
+    const nearBottom = contentOffset.y > 280 && contentOffset.y + layoutMeasurement.height >= contentSize.height - 72;
+    setShowScrollTop((current) => current === nearBottom ? current : nearBottom);
+  };
+
+  const scrollToTop = () => {
+    setShowScrollTop(false);
+    scrollRef.current?.scrollTo({ y: 0, animated: !reducedMotion });
+  };
 
   const content = (
     <Animated.View
@@ -87,12 +130,54 @@ export function AppScreen({ children, motion = 'subtle', scroll = true, padded =
     <SafeAreaView edges={['top']} style={screenStyles.safe}>
       <AmbientBackground />
       {scroll ? (
-        <ScrollView key="scroll-container" style={screenStyles.scroll} contentContainerStyle={screenStyles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          ref={scrollRef}
+          key="scroll-container"
+          style={screenStyles.scroll}
+          contentContainerStyle={screenStyles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          scrollEventThrottle={32}
+          onScroll={handleScroll}
+        >
           {content}
         </ScrollView>
       ) : (
         <View key="static-container" style={screenStyles.staticContainer}>{content}</View>
       )}
+      {floatingMenu ? (
+        <View pointerEvents="box-none" style={[screenStyles.floatingMenu, { top: insets.top + spacing[2] }]}>
+          <AppMenuButton />
+        </View>
+      ) : null}
+      {scroll ? (
+        <Animated.View
+          accessibilityElementsHidden={!showScrollTop}
+          importantForAccessibility={showScrollTop ? 'auto' : 'no-hide-descendants'}
+          pointerEvents={showScrollTop ? 'auto' : 'none'}
+          style={[
+            screenStyles.scrollTopDock,
+            {
+              bottom: hasTabBar ? insets.bottom + 102 : insets.bottom + spacing[5],
+              opacity: scrollTopMotion,
+              transform: [
+                { translateY: scrollTopMotion.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) },
+                { scale: scrollTopMotion.interpolate({ inputRange: [0, 1], outputRange: [0.82, 1] }) },
+              ],
+            },
+          ]}
+        >
+          <GlassSurface interactive radius={22} strength="quiet" style={screenStyles.scrollTopGlass}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={tx('Zum Seitenanfang', 'Back to top')}
+              onPress={scrollToTop}
+              style={({ pressed }) => [screenStyles.scrollTopButton, pressed && screenStyles.pressed]}
+            >
+              <ArrowUp color={colors.cyan300} size={20} strokeWidth={2.2} />
+            </Pressable>
+          </GlassSurface>
+        </Animated.View>
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -295,9 +380,10 @@ type AppHeaderProps = {
 
 export function AppHeader({ title, eyebrow, back = false, right }: AppHeaderProps) {
   const { tx } = useI18n();
+  const hasRightAction = Boolean(right);
   return (
     <View style={screenStyles.header}>
-      <View style={screenStyles.headerSide}>
+      <View style={[screenStyles.headerSide, hasRightAction && screenStyles.headerSideExtended]}>
         {back ? (
           <Pressable accessibilityRole="button" accessibilityLabel={tx('Zurück', 'Back')} onPress={() => router.back()} style={({ pressed }) => [screenStyles.iconButton, pressed && screenStyles.pressed]}>
             <ArrowLeft color={colors.white} size={21} />
@@ -308,7 +394,7 @@ export function AppHeader({ title, eyebrow, back = false, right }: AppHeaderProp
         {eyebrow ? <Text style={screenStyles.headerEyebrow}>{eyebrow}</Text> : null}
         {title ? <Text style={screenStyles.headerTitle}>{title}</Text> : null}
       </View>
-      <View style={[screenStyles.headerSide, screenStyles.headerRight]}>{right ?? <AppMenuButton />}</View>
+      <View style={[screenStyles.headerSide, screenStyles.headerRight, hasRightAction && screenStyles.headerSideExtended, hasRightAction && screenStyles.headerRightWithMenu]}>{right}</View>
     </View>
   );
 }
@@ -453,13 +539,19 @@ const screenStyles = StyleSheet.create({
     minHeight: Platform.OS === 'web' ? '100%' : undefined,
   },
   padded: { paddingHorizontal: spacing[5], paddingBottom: spacing[8] },
+  floatingMenu: { position: 'absolute', right: spacing[5], zIndex: 50, elevation: 14 },
+  scrollTopDock: { position: 'absolute', right: spacing[5], zIndex: 48, elevation: 13 },
+  scrollTopGlass: { width: 44, height: 44, borderRadius: 22, shadowColor: colors.cyan400, shadowOpacity: 0.22, shadowRadius: 14 },
+  scrollTopButton: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   ambientCyan: { position: 'absolute', width: '160%', height: '68%', top: '-12%', left: '-30%', overflow: 'hidden', opacity: 0.96 },
   ambientAmber: { position: 'absolute', width: '165%', height: '70%', bottom: '-19%', left: '-32%', overflow: 'hidden', opacity: 0.9 },
   ambientRibbon: { position: 'absolute', width: '180%', height: '34%', top: '34%', left: '-40%', overflow: 'hidden', opacity: 0.72 },
   ambientVeil: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(3,9,15,0.035)' },
   header: { minHeight: 58, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing[2] },
   headerSide: { width: 52, alignItems: 'flex-start' },
+  headerSideExtended: { width: 104 },
   headerRight: { alignItems: 'flex-end' },
+  headerRightWithMenu: { paddingRight: 52 },
   headerCenter: { flex: 1, alignItems: 'center' },
   headerEyebrow: { fontFamily: 'Inter_600SemiBold', color: colors.cyan400, fontSize: 9, letterSpacing: 1.2 },
   headerTitle: { fontFamily: 'Inter_500Medium', color: colors.white, fontSize: 15, marginTop: 2 },

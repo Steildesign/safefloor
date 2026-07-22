@@ -101,7 +101,7 @@ export default function FlowCanvasScreen() {
   }
 
   return (
-    <AppScreen key="canvas-active" scroll={false} padded={false} motion="none">
+    <AppScreen key="canvas-active" scroll={false} padded={false} floatingMenu={false} motion="none">
       <SeoHead title="Flow Canvas" description="SAFEFLOOR Flow Canvas" noIndex />
       <View style={canvasStyles.canvasRoot} {...responder.panHandlers}>
         <Svg style={StyleSheet.absoluteFill} width="100%" height="100%">

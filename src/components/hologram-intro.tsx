@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { ArrowRight, SkipForward } from 'lucide-react-native';
+import { Hand, SkipForward } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Animated,
@@ -28,7 +28,39 @@ import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { useI18n } from '@/i18n/provider';
 import { colors, spacing } from '@/theme/tokens';
 
-const BODY_PATH = 'M150 18 C126 18 112 36 112 59 C112 80 124 94 133 99 C116 105 99 116 91 136 L69 211 C64 229 71 241 84 240 L106 177 L114 238 L105 330 L113 397 C115 411 135 412 138 397 L150 302 L162 397 C165 412 185 411 187 397 L195 330 L186 238 L194 177 L216 240 C229 241 236 229 231 211 L209 136 C201 116 184 105 167 99 C176 94 188 80 188 59 C188 36 174 18 150 18 Z';
+const BODY_PATH = 'M150 22 C137 22 129 32 129 46 C129 59 136 68 145 72 L144 82 C130 83 119 87 109 94 C100 101 94 109 90 121 L68 205 C65 216 69 224 77 226 C84 228 89 224 92 215 L113 149 C116 177 119 197 121 222 C120 241 112 252 112 270 C115 280 114 295 111 316 L116 395 C117 405 128 409 134 401 L150 302 L166 401 C172 409 183 405 184 395 L189 316 C186 295 185 280 188 270 C188 252 180 241 179 222 C181 197 184 177 187 149 L208 215 C211 224 216 228 223 226 C231 224 235 216 232 205 L210 121 C206 109 200 101 191 94 C181 87 170 83 156 82 L155 72 C164 68 171 59 171 46 C171 32 163 22 150 22 Z';
+
+const FORMATION_BUBBLES = [
+  { x: 0.42, y: 0.91, size: 13, side: -1 },
+  { x: 0.58, y: 0.91, size: 12, side: 1 },
+  { x: 0.43, y: 0.82, size: 9, side: -1 },
+  { x: 0.57, y: 0.82, size: 10, side: 1 },
+  { x: 0.44, y: 0.73, size: 14, side: -1 },
+  { x: 0.56, y: 0.73, size: 13, side: 1 },
+  { x: 0.45, y: 0.64, size: 10, side: -1 },
+  { x: 0.55, y: 0.64, size: 11, side: 1 },
+  { x: 0.42, y: 0.56, size: 16, side: -1 },
+  { x: 0.5, y: 0.55, size: 11, side: 1 },
+  { x: 0.58, y: 0.56, size: 15, side: 1 },
+  { x: 0.38, y: 0.47, size: 11, side: -1 },
+  { x: 0.47, y: 0.46, size: 15, side: -1 },
+  { x: 0.55, y: 0.45, size: 12, side: 1 },
+  { x: 0.62, y: 0.47, size: 9, side: 1 },
+  { x: 0.32, y: 0.39, size: 9, side: -1 },
+  { x: 0.42, y: 0.37, size: 13, side: -1 },
+  { x: 0.5, y: 0.36, size: 18, side: 1 },
+  { x: 0.59, y: 0.37, size: 12, side: 1 },
+  { x: 0.68, y: 0.39, size: 8, side: 1 },
+  { x: 0.29, y: 0.3, size: 8, side: -1 },
+  { x: 0.39, y: 0.28, size: 11, side: -1 },
+  { x: 0.5, y: 0.27, size: 14, side: 1 },
+  { x: 0.61, y: 0.28, size: 10, side: 1 },
+  { x: 0.71, y: 0.3, size: 7, side: 1 },
+  { x: 0.46, y: 0.2, size: 8, side: -1 },
+  { x: 0.54, y: 0.2, size: 9, side: 1 },
+  { x: 0.47, y: 0.12, size: 12, side: -1 },
+  { x: 0.54, y: 0.1, size: 15, side: 1 },
+] as const;
 
 const PARTICLES = [
   { x: 0.22, y: 0.69, size: 7, delay: 0, side: -1 },
@@ -156,23 +188,79 @@ function FlowParticle({ clarity, delay, reducedMotion, side, size, x, y }: FlowP
   );
 }
 
+type FormationBubbleProps = {
+  assemble: Animated.Value;
+  clarity: Animated.Value;
+  index: number;
+  side: number;
+  size: number;
+  stageHeight: number;
+  x: number;
+  y: number;
+};
+
+function FormationBubble({ assemble, clarity, index, side, size, stageHeight, x, y }: FormationBubbleProps) {
+  const start = Math.min(0.64, index * 0.021);
+  const end = Math.min(0.92, start + 0.28);
+  const settle = Math.min(0.99, end + 0.07);
+  const rise = assemble.interpolate({
+    inputRange: [0, start, end, 1],
+    outputRange: [stageHeight * (0.78 - y * 0.2), stageHeight * (0.78 - y * 0.2), 0, 0],
+  });
+  const drift = assemble.interpolate({
+    inputRange: [0, start, end, settle, 1],
+    outputRange: [side * 36, side * 36, side * -4, 0, 0],
+  });
+  const scale = assemble.interpolate({
+    inputRange: [0, start, end, settle, 1],
+    outputRange: [0.28, 0.28, 1.18, 0.94, 0.78],
+  });
+  const formationOpacity = assemble.interpolate({
+    inputRange: [0, start, Math.min(end, 0.97), 1],
+    outputRange: [0, 0, 0.92, 0.2],
+  });
+  const clarityOpacity = clarity.interpolate({ inputRange: [0, 0.34, 1], outputRange: [1, 0.38, 0] });
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        introStyles.formationBubble,
+        {
+          width: size,
+          height: size,
+          borderRadius: size,
+          left: `${x * 100}%`,
+          top: `${y * 100}%`,
+          opacity: Animated.multiply(formationOpacity, clarityOpacity),
+          transform: [{ translateY: rise }, { translateX: drift }, { scale }],
+        },
+      ]}
+    />
+  );
+}
+
 export function HologramIntro() {
   const { height, width } = useWindowDimensions();
   const { tx } = useI18n();
   const reducedMotion = useReducedMotion();
   const [activated, setActivated] = useState(false);
+  const [ready, setReady] = useState(reducedMotion);
   const [intro] = useState(() => new Animated.Value(0));
+  const [assemble] = useState(() => new Animated.Value(reducedMotion ? 1 : 0));
   const [float] = useState(() => new Animated.Value(0));
   const [pulse] = useState(() => new Animated.Value(0));
   const [scan] = useState(() => new Animated.Value(0));
   const [clarity] = useState(() => new Animated.Value(0));
 
-  const stageHeight = Math.min(418, Math.max(320, height * 0.5));
-  const stageWidth = Math.min(width - 28, stageHeight * 0.72);
-  const headSize = stageWidth * 0.3;
+  const viewportWidth = width > 200 ? width : 390;
+  const viewportHeight = height > 400 ? height : 844;
+  const stageHeight = Math.min(418, Math.max(320, viewportHeight * 0.5));
+  const stageWidth = Math.min(viewportWidth - 28, stageHeight * 0.72);
+  const headSize = stageWidth * 0.19;
   const headPosition = useMemo(() => ({
-    left: stageWidth * 0.35,
-    top: stageHeight * 0.035,
+    left: stageWidth * 0.405,
+    top: stageHeight * 0.043,
     width: headSize,
     height: headSize,
     borderRadius: headSize,
@@ -184,15 +272,26 @@ export function HologramIntro() {
       float.setValue(0.42);
       pulse.setValue(0.5);
       scan.setValue(0.46);
+      assemble.setValue(1);
       return;
     }
 
-    Animated.timing(intro, {
-      toValue: 1,
-      duration: 900,
-      easing: Easing.out(Easing.exp),
-      useNativeDriver: Platform.OS !== 'web',
-    }).start();
+    Animated.parallel([
+      Animated.timing(intro, {
+        toValue: 1,
+        duration: 900,
+        easing: Easing.out(Easing.exp),
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+      Animated.timing(assemble, {
+        toValue: 1,
+        duration: 3200,
+        easing: Easing.inOut(Easing.cubic),
+        useNativeDriver: Platform.OS !== 'web',
+      }),
+    ]).start(({ finished }) => {
+      if (finished) setReady(true);
+    });
     const floatLoop = Animated.loop(Animated.sequence([
       Animated.timing(float, { toValue: 1, duration: 3600, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
       Animated.timing(float, { toValue: 0, duration: 3600, easing: Easing.inOut(Easing.sin), useNativeDriver: Platform.OS !== 'web' }),
@@ -210,12 +309,12 @@ export function HologramIntro() {
       pulseLoop.stop();
       scanLoop.stop();
     };
-  }, [float, intro, pulse, reducedMotion, scan]);
+  }, [assemble, float, intro, pulse, reducedMotion, scan]);
 
   const enterApp = () => router.replace('/(tabs)/start');
 
   const activateClarity = () => {
-    if (activated) return;
+    if (activated || !ready) return;
     setActivated(true);
     if (reducedMotion) {
       clarity.setValue(1);
@@ -237,14 +336,19 @@ export function HologramIntro() {
 
   const warmOpacity = clarity.interpolate({ inputRange: [0, 0.66, 1], outputRange: [1, 0.18, 0] });
   const clearOpacity = clarity.interpolate({ inputRange: [0, 0.32, 1], outputRange: [0, 0.24, 1] });
+  const bodyFormationOpacity = assemble.interpolate({ inputRange: [0, 0.62, 0.86, 1], outputRange: [0, 0.04, 0.66, 1] });
   const stageScale = intro.interpolate({ inputRange: [0, 1], outputRange: [0.88, 1] });
   const stageOpacity = intro.interpolate({ inputRange: [0, 0.32, 1], outputRange: [0, 0.76, 1] });
   const floatY = float.interpolate({ inputRange: [0, 1], outputRange: [4, -5] });
   const floatRotate = float.interpolate({ inputRange: [0, 1], outputRange: ['-3deg', '3deg'] });
   const scanY = scan.interpolate({ inputRange: [0, 1], outputRange: [-stageHeight * 0.3, stageHeight * 0.74] });
-  const pulseScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.88, 1.18] });
-  const pulseOpacity = pulse.interpolate({ inputRange: [0, 0.7, 1], outputRange: [0.48, 0.12, 0] });
-  const promptOpacity = clarity.interpolate({ inputRange: [0, 0.18, 1], outputRange: [1, 0, 0] });
+  const pulseScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.93, 1.14] });
+  const pulseOpacity = pulse.interpolate({ inputRange: [0, 0.7, 1], outputRange: [0.52, 0.18, 0] });
+  const readyOpacity = assemble.interpolate({ inputRange: [0, 0.82, 1], outputRange: [0, 0.06, 1] });
+  const promptOpacity = Animated.multiply(
+    readyOpacity,
+    clarity.interpolate({ inputRange: [0, 0.18, 1], outputRange: [1, 0, 0] }),
+  );
   const markOpacity = clarity.interpolate({ inputRange: [0, 0.56, 1], outputRange: [0, 0.2, 1] });
   const markScale = clarity.interpolate({ inputRange: [0, 0.48, 1], outputRange: [0.35, 0.48, 1] });
   const copyOut = clarity.interpolate({ inputRange: [0, 0.2, 1], outputRange: [1, 0, 0] });
@@ -274,8 +378,10 @@ export function HologramIntro() {
         <View style={[introStyles.stage, { width: stageWidth, height: stageHeight }]}>
           <Animated.View
             style={[
-              StyleSheet.absoluteFill,
+              introStyles.stageMotionLayer,
               {
+              width: stageWidth,
+              height: stageHeight,
               opacity: stageOpacity,
               transform: [
                 { perspective: 1200 },
@@ -290,12 +396,26 @@ export function HologramIntro() {
           <View pointerEvents="none" style={introStyles.orbitOuter} />
           <View pointerEvents="none" style={introStyles.orbitInner} />
 
-          <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: warmOpacity }]}>
+          <Animated.View pointerEvents="none" style={[introStyles.bodyLayer, { width: stageWidth, height: stageHeight, opacity: Animated.multiply(warmOpacity, bodyFormationOpacity) }]}>
             <HologramBody variant="warm" />
           </Animated.View>
-          <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { opacity: clearOpacity }]}>
+          <Animated.View pointerEvents="none" style={[introStyles.bodyLayer, { width: stageWidth, height: stageHeight, opacity: clearOpacity }]}>
             <HologramBody variant="clear" />
           </Animated.View>
+
+          {FORMATION_BUBBLES.map((bubble, index) => (
+            <FormationBubble
+              key={`${bubble.x}-${bubble.y}`}
+              assemble={assemble}
+              clarity={clarity}
+              index={index}
+              side={bubble.side}
+              size={bubble.size}
+              stageHeight={stageHeight}
+              x={bubble.x}
+              y={bubble.y}
+            />
+          ))}
 
           {PARTICLES.map((particle) => (
             <FlowParticle
@@ -318,20 +438,52 @@ export function HologramIntro() {
             ]}
           />
 
-          <Animated.View pointerEvents="none" style={[introStyles.headPulse, headPosition, { opacity: Animated.multiply(pulseOpacity, promptOpacity), transform: [{ scale: pulseScale }] }]} />
+          <Animated.View pointerEvents="none" style={[introStyles.headPulseOuter, headPosition, { opacity: Animated.multiply(pulseOpacity, promptOpacity), transform: [{ scale: pulseScale }] }]} />
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              introStyles.brainBubble,
+              headPosition,
+              {
+                opacity: promptOpacity,
+                transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1.045] }) }],
+              },
+            ]}
+          >
+            <Svg width="55%" height="55%" viewBox="0 0 48 48" accessibilityElementsHidden>
+              <Path
+                d="M20 10 C14 6 8 11 10 17 C5 19 6 28 12 29 C9 35 15 40 20 37 M28 10 C34 6 40 11 38 17 C43 19 42 28 36 29 C39 35 33 40 28 37 M20 10 C24 11 24 15 24 20 L24 38 M28 10 C24 11 24 15 24 20 M13 19 C18 18 20 22 20 26 M35 19 C30 18 28 22 28 26 M14 30 C18 28 21 30 22 34 M34 30 C30 28 27 30 26 34"
+                fill="none"
+                stroke={colors.amber300}
+                strokeWidth="1.65"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          </Animated.View>
           <Animated.View pointerEvents="none" style={[introStyles.headMark, headPosition, { opacity: markOpacity, transform: [{ scale: markScale }] }]}>
             <BrandMark animated={false} size={headSize * 0.7} />
           </Animated.View>
-          <Animated.View pointerEvents="none" style={[introStyles.headPrompt, { opacity: promptOpacity, top: headPosition.top + headSize + 5 }]}>
-            <Text style={introStyles.headPromptText}>{tx('KOPF BERÜHREN', 'TOUCH THE HEAD')}</Text>
-            <ArrowRight color={colors.amber300} size={13} />
+          <Animated.View
+            pointerEvents="none"
+            style={[
+              introStyles.touchCue,
+              {
+                left: headPosition.left + headSize * 0.73,
+                top: headPosition.top + headSize * 0.7,
+                opacity: promptOpacity,
+                transform: [{ translateY: pulse.interpolate({ inputRange: [0, 1], outputRange: [2, -3] }) }],
+              },
+            ]}
+          >
+            <Hand color={colors.midnight950} fill={colors.amber300} size={14} strokeWidth={2.1} />
           </Animated.View>
           </Animated.View>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={tx('Kopf berühren und Klarheit aktivieren', 'Touch the head and activate clarity')}
             accessibilityHint={tx('Entfernt die warmen Einflüsse und öffnet danach SAFEFLOOR.', 'Clears the warm influences and then opens SAFEFLOOR.')}
-            disabled={activated}
+            disabled={activated || !ready}
             onPress={activateClarity}
             style={({ pressed }) => [introStyles.headButton, headPosition, pressed && introStyles.headButtonPressed]}
           />
@@ -383,17 +535,53 @@ const introStyles = StyleSheet.create({
   eyebrow: { color: colors.amber300, fontFamily: 'Inter_600SemiBold', fontSize: 9, letterSpacing: 1.7, textAlign: 'center' },
   heroTitle: { color: colors.white, fontFamily: 'Inter_600SemiBold', fontSize: 23, lineHeight: 29, letterSpacing: -0.35, textAlign: 'center', marginTop: 7 },
   stage: { alignSelf: 'center', position: 'relative', marginTop: 2 },
+  stageMotionLayer: { position: 'absolute', left: 0, top: 0 },
+  bodyLayer: { position: 'absolute', left: 0, top: 0 },
   stageHalo: { position: 'absolute', left: '17%', right: '17%', top: '10%', bottom: '5%', borderRadius: 999, backgroundColor: 'rgba(33,212,255,0.028)', shadowColor: colors.cyan400, shadowOpacity: 0.32, shadowRadius: 46 },
   orbitOuter: { position: 'absolute', width: '104%', aspectRatio: 1, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(112,229,255,0.08)', top: '20%', left: '-2%', transform: [{ rotateX: '68deg' }] },
   orbitInner: { position: 'absolute', width: '72%', aspectRatio: 1, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,184,77,0.09)', top: '31%', left: '14%', transform: [{ rotateX: '69deg' }] },
   particle: { position: 'absolute', backgroundColor: colors.amber300, shadowColor: colors.amber400, shadowOpacity: 0.9, shadowRadius: 10 },
+  formationBubble: {
+    position: 'absolute',
+    marginLeft: -5,
+    marginTop: -5,
+    borderWidth: 1,
+    borderColor: 'rgba(255,220,166,0.74)',
+    backgroundColor: 'rgba(255,184,77,0.2)',
+    shadowColor: colors.amber400,
+    shadowOpacity: 0.86,
+    shadowRadius: 12,
+  },
   scanBeam: { position: 'absolute', left: '23%', right: '23%', top: '29%', height: 24, borderRadius: 20, backgroundColor: 'rgba(255,191,98,0.11)', shadowColor: colors.amber400, shadowOpacity: 0.62, shadowRadius: 18 },
-  headPulse: { position: 'absolute', borderWidth: 1.5, borderColor: colors.amber300, backgroundColor: 'rgba(255,184,77,0.035)', shadowColor: colors.amber400, shadowOpacity: 0.8, shadowRadius: 18 },
+  headPulseOuter: { position: 'absolute', borderWidth: 1.5, borderColor: colors.amber300, backgroundColor: 'rgba(255,184,77,0.025)', shadowColor: colors.amber400, shadowOpacity: 0.84, shadowRadius: 20 },
+  brainBubble: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,218,157,0.72)',
+    backgroundColor: 'rgba(255,184,77,0.12)',
+    shadowColor: colors.amber400,
+    shadowOpacity: 0.75,
+    shadowRadius: 18,
+  },
   headMark: { position: 'absolute', alignItems: 'center', justifyContent: 'center' },
   headButton: { position: 'absolute', borderWidth: 1, borderColor: 'rgba(255,213,151,0.34)', backgroundColor: 'rgba(255,184,77,0.02)' },
   headButtonPressed: { backgroundColor: 'rgba(255,184,77,0.13)', transform: [{ scale: 0.94 }] },
-  headPrompt: { position: 'absolute', alignSelf: 'center', left: '28%', right: '28%', minHeight: 28, borderRadius: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, backgroundColor: 'rgba(13,27,39,0.84)', borderWidth: 1, borderColor: 'rgba(255,184,77,0.2)' },
-  headPromptText: { color: colors.amber300, fontFamily: 'Inter_600SemiBold', fontSize: 8, letterSpacing: 1.2 },
+  touchCue: {
+    position: 'absolute',
+    width: 27,
+    height: 27,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.amber300,
+    borderWidth: 2,
+    borderColor: 'rgba(255,244,226,0.72)',
+    shadowColor: colors.amber400,
+    shadowOpacity: 0.78,
+    shadowRadius: 11,
+  },
   messageArea: { height: 70, position: 'relative', justifyContent: 'center' },
   message: { alignItems: 'center', paddingHorizontal: spacing[4] },
   messageOverlay: { position: 'absolute', left: 0, right: 0 },

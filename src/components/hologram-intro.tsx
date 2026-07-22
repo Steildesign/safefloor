@@ -14,11 +14,9 @@ import {
 import Svg, {
   Circle,
   Defs,
-  Ellipse,
   G,
   LinearGradient as SvgLinearGradient,
   Path,
-  Rect,
   Stop,
 } from 'react-native-svg';
 
@@ -86,26 +84,15 @@ function HologramBody({ variant }: { variant: BodyVariant }) {
           <Stop offset="0.46" stopColor={clear ? '#21D4FF' : '#FFB84D'} stopOpacity={clear ? 0.3 : 0.34} />
           <Stop offset="1" stopColor={clear ? '#087BA8' : '#EF7D4A'} stopOpacity={clear ? 0.08 : 0.2} />
         </SvgLinearGradient>
-        <SvgLinearGradient id={`${prefix}-scan`} x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor={clear ? '#70E5FF' : '#FFD28A'} stopOpacity="0" />
-          <Stop offset="0.5" stopColor={clear ? '#70E5FF' : '#FFB84D'} stopOpacity={clear ? 0.42 : 0.3} />
-          <Stop offset="1" stopColor={clear ? '#70E5FF' : '#FFD28A'} stopOpacity="0" />
-        </SvgLinearGradient>
       </Defs>
 
-      <Ellipse cx="150" cy="404" rx="82" ry="9" fill={clear ? '#21D4FF' : '#FFB84D'} opacity={clear ? 0.15 : 0.09} />
       <Path d={BODY_PATH} fill={`url(#${prefix}-body)`} stroke={clear ? '#70E5FF' : '#FFBE64'} strokeWidth={clear ? 1.35 : 1} opacity={clear ? 0.92 : 0.72} />
       <Path d={BODY_PATH} fill="none" stroke="#21D4FF" strokeWidth="0.65" opacity={clear ? 0.34 : 0.16} transform="translate(-3 0)" />
       <Path d={BODY_PATH} fill="none" stroke={clear ? '#FFFFFF' : '#FF8A59'} strokeWidth="0.55" opacity={clear ? 0.18 : 0.2} transform="translate(3 0)" />
 
-      <G opacity={clear ? 0.5 : 0.28} stroke={clear ? '#70E5FF' : '#FFD28A'} fill="none">
+      <G opacity={clear ? 0.38 : 0.18} stroke={clear ? '#70E5FF' : '#FFD28A'} fill="none">
         <Path d="M150 103 L150 294" strokeWidth="0.85" strokeDasharray="4 8" />
-        <Path d="M116 139 Q150 157 184 139" strokeWidth="0.8" />
-        <Path d="M111 158 Q150 179 189 158" strokeWidth="0.7" />
-        <Path d="M109 180 Q150 201 191 180" strokeWidth="0.62" />
-        <Path d="M114 207 Q150 221 186 207" strokeWidth="0.55" />
-        <Circle cx="150" cy="210" r="28" strokeWidth="0.7" strokeDasharray="3 5" />
-        <Circle cx="150" cy="210" r="12" strokeWidth="0.65" />
+        <Circle cx="150" cy="205" r="11" strokeWidth="0.65" />
       </G>
 
       <G opacity={clear ? 0.7 : 0.38} stroke={clear ? '#D5FAFF' : '#FFCE84'} fill="none" strokeLinecap="round">
@@ -113,17 +100,6 @@ function HologramBody({ variant }: { variant: BodyVariant }) {
         <Path d="M141 51 Q150 58 160 49 M143 61 Q151 55 164 61 M151 42 L151 69" strokeWidth="0.7" />
       </G>
 
-      {Array.from({ length: 11 }).map((_, index) => (
-        <Rect
-          key={index}
-          x="84"
-          y={111 + index * 23}
-          width="132"
-          height="1"
-          fill={`url(#${prefix}-scan)`}
-          opacity={clear ? 0.28 : 0.14}
-        />
-      ))}
     </Svg>
   );
 }
@@ -341,7 +317,7 @@ export function HologramIntro() {
   const stageOpacity = intro.interpolate({ inputRange: [0, 0.32, 1], outputRange: [0, 0.76, 1] });
   const floatY = float.interpolate({ inputRange: [0, 1], outputRange: [4, -5] });
   const floatRotate = float.interpolate({ inputRange: [0, 1], outputRange: ['-3deg', '3deg'] });
-  const scanY = scan.interpolate({ inputRange: [0, 1], outputRange: [-stageHeight * 0.3, stageHeight * 0.74] });
+  const scanY = scan.interpolate({ inputRange: [0, 1], outputRange: [-6, stageHeight + 6] });
   const pulseScale = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.93, 1.14] });
   const pulseOpacity = pulse.interpolate({ inputRange: [0, 0.7, 1], outputRange: [0.52, 0.18, 0] });
   const readyOpacity = assemble.interpolate({ inputRange: [0, 0.82, 1], outputRange: [0, 0.06, 1] });
@@ -392,10 +368,6 @@ export function HologramIntro() {
               },
             ]}
           >
-          <View pointerEvents="none" style={introStyles.stageHalo} />
-          <View pointerEvents="none" style={introStyles.orbitOuter} />
-          <View pointerEvents="none" style={introStyles.orbitInner} />
-
           <Animated.View pointerEvents="none" style={[introStyles.bodyLayer, { width: stageWidth, height: stageHeight, opacity: Animated.multiply(warmOpacity, bodyFormationOpacity) }]}>
             <HologramBody variant="warm" />
           </Animated.View>
@@ -537,9 +509,6 @@ const introStyles = StyleSheet.create({
   stage: { alignSelf: 'center', position: 'relative', marginTop: 2 },
   stageMotionLayer: { position: 'absolute', left: 0, top: 0 },
   bodyLayer: { position: 'absolute', left: 0, top: 0 },
-  stageHalo: { position: 'absolute', left: '17%', right: '17%', top: '10%', bottom: '5%', borderRadius: 999, backgroundColor: 'rgba(33,212,255,0.028)', shadowColor: colors.cyan400, shadowOpacity: 0.32, shadowRadius: 46 },
-  orbitOuter: { position: 'absolute', width: '104%', aspectRatio: 1, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(112,229,255,0.08)', top: '20%', left: '-2%', transform: [{ rotateX: '68deg' }] },
-  orbitInner: { position: 'absolute', width: '72%', aspectRatio: 1, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(255,184,77,0.09)', top: '31%', left: '14%', transform: [{ rotateX: '69deg' }] },
   particle: { position: 'absolute', backgroundColor: colors.amber300, shadowColor: colors.amber400, shadowOpacity: 0.9, shadowRadius: 10 },
   formationBubble: {
     position: 'absolute',
@@ -552,7 +521,17 @@ const introStyles = StyleSheet.create({
     shadowOpacity: 0.86,
     shadowRadius: 12,
   },
-  scanBeam: { position: 'absolute', left: '23%', right: '23%', top: '29%', height: 24, borderRadius: 20, backgroundColor: 'rgba(255,191,98,0.11)', shadowColor: colors.amber400, shadowOpacity: 0.62, shadowRadius: 18 },
+  scanBeam: {
+    position: 'absolute',
+    left: '17%',
+    right: '17%',
+    top: 0,
+    height: 2,
+    backgroundColor: 'rgba(255,209,138,0.82)',
+    shadowColor: colors.amber400,
+    shadowOpacity: 0.94,
+    shadowRadius: 12,
+  },
   headPulseOuter: { position: 'absolute', borderWidth: 1.5, borderColor: colors.amber300, backgroundColor: 'rgba(255,184,77,0.025)', shadowColor: colors.amber400, shadowOpacity: 0.84, shadowRadius: 20 },
   brainBubble: {
     position: 'absolute',

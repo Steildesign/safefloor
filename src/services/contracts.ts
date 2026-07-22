@@ -1,4 +1,5 @@
 import { CommunityAlert, Resource, Substance } from '@/domain/types';
+import { Locale } from '@/i18n/provider';
 
 export interface CommunityRepository {
   getAlerts(): Promise<CommunityAlert[]>;
@@ -15,5 +16,5 @@ export interface ResourceRepository {
 }
 
 export interface TripSitterService {
-  reply(message: string): Promise<{ message: string; action: 'NONE' | 'START_BREATHING' | 'SHOW_EMERGENCY' }>;
+  reply(message: string, locale?: Locale): Promise<{ message: string; action: 'NONE' | 'START_BREATHING' | 'SHOW_EMERGENCY' }>;
 }

@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SeoHead } from '@/components/seo-head';
 import { AppHeader, AppScreen, Body, Button, Card, Eyebrow, Title } from '@/components/ui';
 import { colors, spacing } from '@/theme/tokens';
+import { useI18n } from '@/i18n/provider';
 
 const steps = [
   { count: '5', label: 'Dinge, die du sehen kannst', icon: Eye },
@@ -16,29 +17,31 @@ const steps = [
 ];
 
 export default function GroundingScreen() {
+  const { tx } = useI18n();
+  const localizedSteps = steps.map((item, index) => ({ ...item, label: [tx('Dinge, die du sehen kannst', 'things you can see'), tx('Dinge, die du berühren kannst', 'things you can touch'), tx('Dinge, die du hören kannst', 'things you can hear'), tx('Dinge, die du riechen kannst', 'things you can smell'), tx('Sache, die du bewusst wahrnimmst', 'thing you can notice mindfully')][index] }));
   const [step, setStep] = useState(0);
-  const current = steps[step];
+  const current = localizedSteps[step];
   const Icon = current.icon;
   const complete = step === steps.length - 1;
 
   return (
     <AppScreen scroll={false} style={groundingStyles.screen}>
       <SeoHead title="Erdungsübung" description="SAFEFLOOR 5-4-3-2-1-Erdungsübung für ruhige Orientierung." noIndex />
-      <AppHeader title="Erdung" back />
+      <AppHeader title={tx('Erdung', 'Grounding')} back />
       <View style={groundingStyles.progress}>{steps.map((item, index) => <View key={item.count} style={[groundingStyles.segment, index <= step && groundingStyles.segmentActive]} />)}</View>
       <View style={groundingStyles.hero}>
         <View style={groundingStyles.iconWrap}><Icon color={colors.cyan400} size={34} /></View>
-        <Eyebrow>IM HIER UND JETZT</Eyebrow>
+        <Eyebrow>{tx('IM HIER UND JETZT', 'HERE AND NOW')}</Eyebrow>
         <Text style={groundingStyles.count}>{current.count}</Text>
         <Title style={groundingStyles.center}>{current.label}</Title>
-        <Body muted style={groundingStyles.body}>Nimm dir Zeit. Du musst nichts beweisen und kannst jederzeit zu einem anderen Schritt wechseln.</Body>
+        <Body muted style={groundingStyles.body}>{tx('Nimm dir Zeit. Du musst nichts beweisen und kannst jederzeit zu einem anderen Schritt wechseln.', 'Take your time. You do not have to prove anything and can change steps whenever you like.')}</Body>
       </View>
       <Card tone="cyan">
-        <View style={groundingStyles.tipRow}><Check color={colors.success} size={20} /><Text style={groundingStyles.tip}>Wenn du möchtest, benenne die Dinge leise für dich. Die App speichert keine Antworten.</Text></View>
+        <View style={groundingStyles.tipRow}><Check color={colors.success} size={20} /><Text style={groundingStyles.tip}>{tx('Wenn du möchtest, benenne die Dinge leise für dich. Die App speichert keine Antworten.', 'If you like, name the things quietly to yourself. The app stores no answers.')}</Text></View>
       </Card>
       <View style={groundingStyles.actions}>
-        <Button label={complete ? 'Übung abschließen' : 'Nächster Schritt'} icon={ChevronRight} onPress={() => complete ? router.replace('/(tabs)/help') : setStep((value) => value + 1)} />
-        {step > 0 ? <Pressable onPress={() => setStep((value) => value - 1)} style={groundingStyles.back}><Text style={groundingStyles.backText}>Einen Schritt zurück</Text></Pressable> : null}
+        <Button label={complete ? tx('Übung abschließen', 'Finish exercise') : tx('Nächster Schritt', 'Next step')} icon={ChevronRight} onPress={() => complete ? router.replace('/(tabs)/help') : setStep((value) => value + 1)} />
+        {step > 0 ? <Pressable onPress={() => setStep((value) => value - 1)} style={groundingStyles.back}><Text style={groundingStyles.backText}>{tx('Einen Schritt zurück', 'One step back')}</Text></Pressable> : null}
       </View>
     </AppScreen>
   );

@@ -8,13 +8,15 @@ import { SeoHead } from '@/components/seo-head';
 import { AppHeader, AppScreen, Card, Chip } from '@/components/ui';
 import { mockTripSitterService } from '@/services/mock';
 import { colors, radii, spacing } from '@/theme/tokens';
+import { useI18n } from '@/i18n/provider';
 
 type Message = { id: number; role: 'assistant' | 'user'; text: string };
 
 export default function ChatScreen() {
+  const { locale, tx } = useI18n();
   const [messages, setMessages] = useState<Message[]>([
-    { id: 1, role: 'assistant', text: 'Ich bin der SAFEFLOOR KI-Prototyp. Ich kann die Situation nicht beurteilen, aber ich kann dir helfen, den nächsten kleinen Schritt zu finden.' },
-    { id: 2, role: 'assistant', text: 'Bist du gerade an einem Ort, an dem du sitzen oder dich anlehnen kannst?' },
+    { id: 1, role: 'assistant', text: tx('Ich bin der SAFEFLOOR KI-Prototyp. Ich kann die Situation nicht beurteilen, aber ich kann dir helfen, den nächsten kleinen Schritt zu finden.', 'I am the SAFEFLOOR AI prototype. I cannot assess the situation, but I can help you find the next small step.') },
+    { id: 2, role: 'assistant', text: tx('Bist du gerade an einem Ort, an dem du sitzen oder dich anlehnen kannst?', 'Are you somewhere you can sit down or lean against something?') },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,7 @@ export default function ChatScreen() {
     setMessages((items) => [...items, { id: Date.now(), role: 'user', text }]);
     setInput('');
     setLoading(true);
-    const reply = await mockTripSitterService.reply(text);
+    const reply = await mockTripSitterService.reply(text, locale);
     setMessages((items) => [...items, { id: Date.now() + 1, role: 'assistant', text: reply.message }]);
     setLoading(false);
     if (reply.action === 'SHOW_EMERGENCY') router.push('/safety-check');
@@ -37,25 +39,25 @@ export default function ChatScreen() {
         <SeoHead title="KI-Trip-Sitter Demo" description="Begrenzter, simulierter SAFEFLOOR KI-Dialog mit vorgeschaltetem Safety-Check." noIndex />
         <AppHeader title="KI-Trip-Sitter" back right={<View style={chatStyles.active}><View style={chatStyles.activeDot} /><Text style={chatStyles.activeText}>DEMO</Text></View>} />
         <Card tone="amber" style={chatStyles.safetyNotice}>
-          <Pressable onPress={() => router.push('/safety-check')} style={chatStyles.noticeRow}><AlertTriangle color={colors.amber400} size={18} /><Text style={chatStyles.noticeText}>Schwere Warnzeichen? Safety-Check öffnen – nicht weiterchatten.</Text></Pressable>
+          <Pressable onPress={() => router.push('/safety-check')} style={chatStyles.noticeRow}><AlertTriangle color={colors.amber400} size={18} /><Text style={chatStyles.noticeText}>{tx('Schwere Warnzeichen? Safety-Check öffnen – nicht weiterchatten.', 'Severe warning signs? Open the safety check – do not keep chatting.')}</Text></Pressable>
         </Card>
         <View style={chatStyles.orb}><PearlAvatar size={76} /></View>
         <View style={chatStyles.messages}>
           {messages.map((message) => (
             <View key={message.id} style={[chatStyles.bubble, message.role === 'user' ? chatStyles.userBubble : chatStyles.assistantBubble]}>
-              {message.role === 'assistant' ? <View style={chatStyles.aiRow}><Sparkles color={colors.cyan400} size={13} /><Text style={chatStyles.aiLabel}>KI-PROTOTYP</Text></View> : null}
+              {message.role === 'assistant' ? <View style={chatStyles.aiRow}><Sparkles color={colors.cyan400} size={13} /><Text style={chatStyles.aiLabel}>{tx('KI-PROTOTYP', 'AI PROTOTYPE')}</Text></View> : null}
               <Text style={chatStyles.messageText}>{message.text}</Text>
             </View>
           ))}
-          {loading ? <View style={[chatStyles.bubble, chatStyles.assistantBubble]}><Text style={chatStyles.typing}>Antwort wird lokal simuliert …</Text></View> : null}
+          {loading ? <View style={[chatStyles.bubble, chatStyles.assistantBubble]}><Text style={chatStyles.typing}>{tx('Antwort wird lokal simuliert …', 'Reply is simulated locally …')}</Text></View> : null}
         </View>
-        <View style={chatStyles.suggestions}><Chip label="Ich bin sehr unruhig" onPress={() => send('Ich bin sehr unruhig')} /><Chip label="Atmen" onPress={() => send('Hilf mir beim Atmen')} /></View>
+        <View style={chatStyles.suggestions}><Chip label={tx('Ich bin sehr unruhig', 'I feel very unsettled')} onPress={() => send(tx('Ich bin sehr unruhig', 'I feel very unsettled'))} /><Chip label={tx('Atmen', 'Breathe')} onPress={() => send(tx('Hilf mir beim Atmen', 'Help me breathe'))} /></View>
         <View style={chatStyles.inputRow}>
-          <TextInput accessibilityLabel="Nachricht an den KI-Prototyp" value={input} onChangeText={setInput} placeholder="Schreibe einen kurzen Satz …" placeholderTextColor={colors.gray} style={chatStyles.input} onSubmitEditing={() => send()} />
-          <Pressable accessibilityRole="button" accessibilityLabel="Nachricht senden" onPress={() => send()} style={chatStyles.send}><Send color={colors.black} size={19} /></Pressable>
+          <TextInput accessibilityLabel={tx('Nachricht an den KI-Prototyp', 'Message to the AI prototype')} value={input} onChangeText={setInput} placeholder={tx('Schreibe einen kurzen Satz …', 'Write a short sentence …')} placeholderTextColor={colors.gray} style={chatStyles.input} onSubmitEditing={() => send()} />
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('Nachricht senden', 'Send message')} onPress={() => send()} style={chatStyles.send}><Send color={colors.black} size={19} /></Pressable>
         </View>
-        <Pressable onPress={() => router.push('/breathing')} style={chatStyles.breathingLink}><Wind color={colors.cyan400} size={17} /><Text style={chatStyles.breathingText}>Stattdessen Atemhilfe starten</Text></Pressable>
-        <Text style={chatStyles.privacy}>Verlauf wird in dieser Demo nicht gespeichert.</Text>
+        <Pressable onPress={() => router.push('/breathing')} style={chatStyles.breathingLink}><Wind color={colors.cyan400} size={17} /><Text style={chatStyles.breathingText}>{tx('Stattdessen Atemhilfe starten', 'Start breathing instead')}</Text></Pressable>
+        <Text style={chatStyles.privacy}>{tx('Verlauf wird in dieser Demo nicht gespeichert.', 'This demo does not save the conversation.')}</Text>
       </AppScreen>
     </KeyboardAvoidingView>
   );

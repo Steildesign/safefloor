@@ -6,10 +6,13 @@ import { AlertCard } from '@/components/alert-card';
 import { BrandMark } from '@/components/brand-mark';
 import { SeoHead } from '@/components/seo-head';
 import { ActionRow, AppMenuButton, AppScreen, Body, BrandWordmark, Button, Card, Chip, SectionTitle, Title } from '@/components/ui';
-import { alerts } from '@/data/mock';
+import { getAlerts } from '@/data/mock';
+import { useI18n } from '@/i18n/provider';
 import { colors, spacing } from '@/theme/tokens';
 
 export default function StartScreen() {
+  const { locale, tx } = useI18n();
+  const alerts = getAlerts(locale);
   return (
     <AppScreen>
       <SeoHead title="Start" description="Lokale Hinweise, ruhige Orientierung und schneller Zugang zu SAFEFLOOR Hilfe." noIndex />
@@ -20,37 +23,37 @@ export default function StartScreen() {
 
       <View style={startStyles.hero}>
         <View style={startStyles.heroCopy}>
-          <Text style={startStyles.overline}>GUTEN ABEND · BERLIN</Text>
-          <Title>Bleib informiert.{`\n`}Bleib bei dir.</Title>
-          <Body muted style={startStyles.heroBody}>Hinweise aus deiner Umgebung, ruhig eingeordnet.</Body>
+          <Text style={startStyles.overline}>{tx('GUTEN ABEND · BERLIN', 'GOOD EVENING · BERLIN')}</Text>
+          <Title>{tx('Bleib informiert.', 'Stay informed.')}{`\n`}{tx('Bleib bei dir.', 'Stay grounded.')}</Title>
+          <Body muted style={startStyles.heroBody}>{tx('Hinweise aus deiner Umgebung, ruhig eingeordnet.', 'Updates from around you, calmly put into context.')}</Body>
         </View>
         <BrandMark size={88} />
       </View>
 
       <View style={startStyles.locationRow}>
-        <Chip label="Berlin · manuell gewählt" active />
-        <View style={startStyles.offline}><View style={startStyles.offlineDot} /><Text style={startStyles.offlineText}>Basiswissen offline</Text></View>
+        <Chip label={tx('Berlin · manuell gewählt', 'Berlin · selected manually')} active />
+        <View style={startStyles.offline}><View style={startStyles.offlineDot} /><Text style={startStyles.offlineText}>{tx('Basiswissen offline', 'Core knowledge offline')}</Text></View>
       </View>
 
-      <SectionTitle action="Alle ansehen">Relevant für dich</SectionTitle>
+      <SectionTitle action={tx('Alle ansehen', 'View all')}>{tx('Relevant für dich', 'Relevant to you')}</SectionTitle>
       <AlertCard alert={alerts[0]} onPress={() => router.push({ pathname: '/alert/[id]', params: { id: alerts[0].id } })} />
 
       <View style={startStyles.buttonGap}>
-        <Button label="Anonyme Meldung starten" icon={Plus} tone="amber" onPress={() => router.push('/report')} />
+        <Button label={tx('Anonyme Meldung starten', 'Start anonymous report')} icon={Plus} tone="amber" onPress={() => router.push('/report')} />
       </View>
 
-      <SectionTitle>Schneller Zugang</SectionTitle>
-      <ActionRow icon={HeartHandshake} title="Ich brauche gerade Ruhe" detail="Atemhilfe, Erdung oder ein ruhiges Gespräch." onPress={() => router.push('/(tabs)/help')} />
-      <ActionRow icon={ShieldCheck} title="Nachsorge & Ressourcen" detail="Runterkommen, lokale Hilfe und nächste Schritte." onPress={() => router.push('/aftercare')} />
-      <ActionRow icon={BookOpen} title="Geprüftes Wissen" detail="Strukturierte Risiko- und Warninformationen." onPress={() => router.push('/(tabs)/knowledge')} />
+      <SectionTitle>{tx('Schneller Zugang', 'Quick access')}</SectionTitle>
+      <ActionRow icon={HeartHandshake} title={tx('Ich brauche gerade Ruhe', 'I need calm right now')} detail={tx('Atemhilfe, Malen, Erdung oder ein ruhiges Gespräch.', 'Breathing, drawing, grounding or a calm conversation.')} onPress={() => router.push('/(tabs)/help')} />
+      <ActionRow icon={ShieldCheck} title={tx('Nachsorge & Ressourcen', 'Aftercare & resources')} detail={tx('Runterkommen, lokale Hilfe und nächste Schritte.', 'Come down, find local help and plan next steps.')} onPress={() => router.push('/aftercare')} />
+      <ActionRow icon={BookOpen} title={tx('Geprüftes Wissen', 'Verified knowledge')} detail={tx('Strukturierte Risiko- und Warninformationen.', 'Structured risk and warning information.')} onPress={() => router.push('/(tabs)/knowledge')} />
 
-      <SectionTitle>Heute hilfreich</SectionTitle>
-      <Card tone="cyan" onPress={() => router.push({ pathname: '/alert/[id]', params: { id: alerts[1].id } })} accessibilityLabel="Wasserstation geöffnet">
+      <SectionTitle>{tx('Heute hilfreich', 'Helpful today')}</SectionTitle>
+      <Card tone="cyan" onPress={() => router.push({ pathname: '/alert/[id]', params: { id: alerts[1].id } })} accessibilityLabel={tx('Wasserstation geöffnet', 'Water station open')}>
         <View style={startStyles.resourceRow}>
           <View style={startStyles.resourceIcon}><MapPin color={colors.cyan400} size={22} /></View>
           <View style={startStyles.resourceCopy}>
-            <Text style={startStyles.resourceTitle}>Wasserstation geöffnet</Text>
-            <Text style={startStyles.resourceMeta}>Bereich Nord · 0,4 km · Partner bestätigt</Text>
+            <Text style={startStyles.resourceTitle}>{tx('Wasserstation geöffnet', 'Water station open')}</Text>
+            <Text style={startStyles.resourceMeta}>{tx('Bereich Nord · 0,4 km · Partner bestätigt', 'North area · 0.4 km · Partner confirmed')}</Text>
           </View>
           <ArrowUpRight color={colors.cyan400} size={20} />
         </View>

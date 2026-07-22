@@ -1,4 +1,4 @@
-export type ConfidenceLevel = 'Mehrfach gemeldet' | 'Partner bestätigt' | 'Redaktionell';
+export type ConfidenceLevel = 'Mehrfach gemeldet' | 'Partner bestätigt' | 'Redaktionell' | 'Multiple reports' | 'Partner confirmed' | 'Editorial';
 
 export type AlertKind = 'community' | 'tip' | 'resource';
 
@@ -27,6 +27,36 @@ export type Substance = {
   warningSigns: string[];
   harmReduction: string[];
   reviewedAt: string;
+  pubChemCid: number;
+  referenceScope: string;
+};
+
+export type CombinationRisk = 'hoch' | 'sehr hoch' | 'high' | 'very high';
+
+export type SubstanceCombination = {
+  slug: string;
+  substances: [string, string];
+  sceneNames: string;
+  risk: CombinationRisk;
+  summary: string;
+  risks: string[];
+  warningSigns: string[];
+  firstSteps: string[];
+  reviewedAt: string;
+  sources: { label: string; url: string }[];
+};
+
+export type MapPlaceKind = 'warning' | 'resource' | 'support';
+
+export type MapPlace = {
+  id: string;
+  kind: MapPlaceKind;
+  title: string;
+  detail: string;
+  area: string;
+  coordinate: [number, number];
+  radiusMeters: number;
+  status: string;
 };
 
 export type ReportCategory = {

@@ -24,9 +24,11 @@ import {
   CircleUserRound,
   HeartHandshake,
   Home,
+  Languages,
   LifeBuoy,
   Menu,
   MessageCircle,
+  Palette,
   ShieldCheck,
   UsersRound,
   Wind,
@@ -37,6 +39,7 @@ import { type Href, router, usePathname } from 'expo-router';
 import { colors, radii, shadows, spacing } from '@/theme/tokens';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { GlassSurface } from '@/components/glass-surface';
+import { useI18n } from '@/i18n/provider';
 
 type AppScreenProps = {
   children: ReactNode;
@@ -47,11 +50,11 @@ type AppScreenProps = {
 };
 
 export function AppScreen({ children, motion = 'subtle', scroll = true, padded = true, style }: AppScreenProps) {
-  const [entrance] = useState(() => new Animated.Value(motion === 'none' ? 1 : 0));
+  const [entrance] = useState(() => new Animated.Value(Platform.OS === 'web' || motion === 'none' ? 1 : 0));
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    if (reducedMotion || motion === 'none') {
+    if (Platform.OS === 'web' || reducedMotion || motion === 'none') {
       entrance.setValue(1);
       return;
     }
@@ -59,12 +62,13 @@ export function AppScreen({ children, motion = 'subtle', scroll = true, padded =
       toValue: 1,
       duration: 520,
       easing: Easing.out(Easing.exp),
-      useNativeDriver: Platform.OS !== 'web',
+      useNativeDriver: true,
     }).start();
   }, [entrance, motion, reducedMotion]);
 
   const content = (
     <Animated.View
+      key={scroll ? 'scroll-content' : 'static-content'}
       style={[
         screenStyles.inner,
         padded && screenStyles.padded,
@@ -83,11 +87,11 @@ export function AppScreen({ children, motion = 'subtle', scroll = true, padded =
     <SafeAreaView edges={['top']} style={screenStyles.safe}>
       <AmbientBackground />
       {scroll ? (
-        <ScrollView style={screenStyles.scroll} contentContainerStyle={screenStyles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView key="scroll-container" style={screenStyles.scroll} contentContainerStyle={screenStyles.scrollContent} showsVerticalScrollIndicator={false}>
           {content}
         </ScrollView>
       ) : (
-        content
+        <View key="static-container" style={screenStyles.staticContainer}>{content}</View>
       )}
     </SafeAreaView>
   );
@@ -167,24 +171,24 @@ type MenuItem = {
   icon: LucideIcon;
 };
 
-const primaryMenuItems: MenuItem[] = [
-  { label: 'Start', detail: 'Dein ruhiger Überblick', href: '/(tabs)/start', icon: Home },
-  { label: 'Community', detail: 'Lokale Hinweise & Ressourcen', href: '/(tabs)/community', icon: UsersRound },
-  { label: 'Begleiter', detail: 'Ruhe, Erdung & Gespräch', href: '/(tabs)/help', icon: LifeBuoy },
-  { label: 'Wissen', detail: 'Substanzen & Warnzeichen', href: '/(tabs)/knowledge', icon: BookOpen },
-  { label: 'Profil', detail: 'Sicherheitsnetz & Privatsphäre', href: '/(tabs)/profile', icon: CircleUserRound },
-];
-
-const supportMenuItems: MenuItem[] = [
-  { label: 'Atemhilfe', detail: 'Vier ruhige Sekunden', href: '/breathing', icon: Wind },
-  { label: 'Ruhiges Gespräch', detail: 'Begrenzte Begleiter-Demo', href: '/chat', icon: MessageCircle },
-  { label: 'Nachsorge', detail: 'Nächste sichere Schritte', href: '/aftercare', icon: HeartHandshake },
-  { label: 'Safety-Check', detail: 'Warnzeichen klar prüfen', href: '/safety-check', icon: ShieldCheck },
-];
-
 export function AppMenuButton() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { locale, setLocale, tx } = useI18n();
+  const primaryMenuItems: MenuItem[] = [
+    { label: tx('Start', 'Home'), detail: tx('Dein ruhiger Überblick', 'Your calm overview'), href: '/(tabs)/start', icon: Home },
+    { label: 'Community', detail: tx('Lokale Hinweise & Ressourcen', 'Local alerts & resources'), href: '/(tabs)/community', icon: UsersRound },
+    { label: tx('Begleiter', 'Companion'), detail: tx('Ruhe, Erdung & Gespräch', 'Calm, grounding & conversation'), href: '/(tabs)/help', icon: LifeBuoy },
+    { label: tx('Wissen', 'Knowledge'), detail: tx('Substanzen & Warnzeichen', 'Substances & warning signs'), href: '/(tabs)/knowledge', icon: BookOpen },
+    { label: tx('Profil', 'Profile'), detail: tx('Sicherheitsnetz & Privatsphäre', 'Safety network & privacy'), href: '/(tabs)/profile', icon: CircleUserRound },
+  ];
+  const supportMenuItems: MenuItem[] = [
+    { label: tx('Atemhilfe', 'Breathing'), detail: tx('Vier ruhige Sekunden', 'Four calm seconds'), href: '/breathing', icon: Wind },
+    { label: tx('Flow Canvas', 'Flow Canvas'), detail: tx('Mit dem Finger zur Ruhe kommen', 'Settle through gentle touch'), href: '/canvas', icon: Palette },
+    { label: tx('Ruhiges Gespräch', 'Calm conversation'), detail: tx('Begrenzte Begleiter-Demo', 'Bounded companion demo'), href: '/chat', icon: MessageCircle },
+    { label: tx('Nachsorge', 'Aftercare'), detail: tx('Nächste sichere Schritte', 'Next safer steps'), href: '/aftercare', icon: HeartHandshake },
+    { label: 'Safety-Check', detail: tx('Warnzeichen klar prüfen', 'Check clear warning signs'), href: '/safety-check', icon: ShieldCheck },
+  ];
 
   const navigate = (href: Href) => {
     setOpen(false);
@@ -219,7 +223,7 @@ export function AppMenuButton() {
       <GlassSurface interactive radius={16} strength="quiet" style={screenStyles.menuButtonGlass}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="App-Menü öffnen"
+          accessibilityLabel={tx('App-Menü öffnen', 'Open app menu')}
           onPress={() => setOpen(true)}
           style={({ pressed }) => [screenStyles.menuButton, pressed && screenStyles.pressed]}
         >
@@ -228,28 +232,51 @@ export function AppMenuButton() {
       </GlassSurface>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <View style={screenStyles.menuModal}>
-          <Pressable accessibilityLabel="App-Menü schließen" onPress={() => setOpen(false)} style={StyleSheet.absoluteFill} />
+          <Pressable accessibilityLabel={tx('App-Menü schließen', 'Close app menu')} onPress={() => setOpen(false)} style={StyleSheet.absoluteFill} />
           <SafeAreaView edges={['top', 'bottom']} style={screenStyles.menuSheet}>
             <View style={screenStyles.menuHandle} />
             <View style={screenStyles.menuHeader}>
               <View>
                 <BrandWordmark compact />
-                <Text style={screenStyles.menuClaim}>DEIN RUHIGER BEGLEITER</Text>
+                <Text style={screenStyles.menuClaim}>{tx('DEIN RUHIGER BEGLEITER', 'YOUR CALM COMPANION')}</Text>
               </View>
               <GlassSurface interactive radius={16} strength="quiet" style={screenStyles.menuButtonGlass}>
-                <Pressable accessibilityRole="button" accessibilityLabel="App-Menü schließen" onPress={() => setOpen(false)} style={({ pressed }) => [screenStyles.menuButton, pressed && screenStyles.pressed]}>
+                <Pressable accessibilityRole="button" accessibilityLabel={tx('App-Menü schließen', 'Close app menu')} onPress={() => setOpen(false)} style={({ pressed }) => [screenStyles.menuButton, pressed && screenStyles.pressed]}>
                   <X color={colors.white} size={21} />
                 </Pressable>
               </GlassSurface>
             </View>
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={screenStyles.menuScroll}>
-              <Text style={screenStyles.menuSectionLabel}>HAUPTBEREICHE</Text>
+              <View style={screenStyles.languageBlock}>
+                <View style={screenStyles.languageLabelRow}>
+                  <Languages color={colors.cyan400} size={18} />
+                  <View style={screenStyles.languageCopy}>
+                    <Text style={screenStyles.languageTitle}>{tx('Sprache', 'Language')}</Text>
+                    <Text style={screenStyles.languageDetail}>{tx('Gilt sofort in der gesamten App', 'Applies across the app immediately')}</Text>
+                  </View>
+                </View>
+                <View accessibilityRole="radiogroup" style={screenStyles.languageChoices}>
+                  {(['de', 'en'] as const).map((value) => (
+                    <Pressable
+                      key={value}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: locale === value }}
+                      onPress={() => setLocale(value)}
+                      style={[screenStyles.languageChoice, locale === value && screenStyles.languageChoiceActive]}
+                    >
+                      <Text style={[screenStyles.languageCode, locale === value && screenStyles.languageCodeActive]}>{value.toUpperCase()}</Text>
+                      <Text style={[screenStyles.languageName, locale === value && screenStyles.languageNameActive]}>{value === 'de' ? 'Deutsch' : 'English'}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+              <Text style={screenStyles.menuSectionLabel}>{tx('HAUPTBEREICHE', 'MAIN AREAS')}</Text>
               {primaryMenuItems.map(renderItem)}
-              <Text style={screenStyles.menuSectionLabel}>SCHNELLHILFE</Text>
+              <Text style={screenStyles.menuSectionLabel}>{tx('SCHNELLHILFE', 'QUICK SUPPORT')}</Text>
               {supportMenuItems.map(renderItem)}
               <View style={screenStyles.menuEmergencyNote}>
-                <Text style={screenStyles.menuEmergencyTitle}>Akute Gefahr?</Text>
-                <Text style={screenStyles.menuEmergencyText}>SAFEFLOOR ersetzt keine Notfallversorgung. Bei Lebensgefahr sofort 112.</Text>
+                <Text style={screenStyles.menuEmergencyTitle}>{tx('Akute Gefahr?', 'Immediate danger?')}</Text>
+                <Text style={screenStyles.menuEmergencyText}>{tx('SAFEFLOOR ersetzt keine Notfallversorgung. Bei Lebensgefahr sofort 112.', 'SAFEFLOOR is not emergency care. Call 112 immediately if a life is at risk.')}</Text>
               </View>
             </ScrollView>
           </SafeAreaView>
@@ -267,11 +294,12 @@ type AppHeaderProps = {
 };
 
 export function AppHeader({ title, eyebrow, back = false, right }: AppHeaderProps) {
+  const { tx } = useI18n();
   return (
     <View style={screenStyles.header}>
       <View style={screenStyles.headerSide}>
         {back ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Zurück" onPress={() => router.back()} style={({ pressed }) => [screenStyles.iconButton, pressed && screenStyles.pressed]}>
+          <Pressable accessibilityRole="button" accessibilityLabel={tx('Zurück', 'Back')} onPress={() => router.back()} style={({ pressed }) => [screenStyles.iconButton, pressed && screenStyles.pressed]}>
             <ArrowLeft color={colors.white} size={21} />
           </Pressable>
         ) : null}
@@ -414,6 +442,7 @@ export function Chip({ label, active = false, onPress }: { label: string; active
 const screenStyles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.midnight950, overflow: 'hidden' },
   scroll: { flex: 1 },
+  staticContainer: { flex: 1 },
   scrollContent: { flexGrow: 1 },
   inner: {
     flex: 1,
@@ -438,7 +467,7 @@ const screenStyles = StyleSheet.create({
   menuButtonGlass: { width: 44, height: 44 },
   menuButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 16 },
   menuModal: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(1,6,11,0.72)' },
-  menuSheet: { maxHeight: '92%', backgroundColor: '#08131F', borderTopLeftRadius: 28, borderTopRightRadius: 28, borderWidth: 1, borderBottomWidth: 0, borderColor: 'rgba(112,229,255,0.16)', overflow: 'hidden' },
+  menuSheet: { width: '100%', height: '88%', maxHeight: 760, backgroundColor: '#08131F', borderTopLeftRadius: 28, borderTopRightRadius: 28, borderWidth: 1, borderBottomWidth: 0, borderColor: 'rgba(112,229,255,0.16)', overflow: 'hidden' },
   menuHandle: { width: 42, height: 4, borderRadius: 4, backgroundColor: colors.line, alignSelf: 'center', marginTop: 10 },
   menuHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing[5], paddingTop: spacing[4], paddingBottom: spacing[3] },
   menuClaim: { color: colors.amber300, fontFamily: 'Inter_600SemiBold', fontSize: 8, letterSpacing: 1.35, marginTop: 3 },
@@ -455,6 +484,18 @@ const screenStyles = StyleSheet.create({
   menuEmergencyNote: { marginTop: spacing[6], borderRadius: radii.card, borderWidth: 1, borderColor: 'rgba(255,102,90,0.28)', backgroundColor: 'rgba(255,102,90,0.055)', padding: spacing[4] },
   menuEmergencyTitle: { color: colors.emergency, fontFamily: 'Inter_600SemiBold', fontSize: 13 },
   menuEmergencyText: { color: colors.grayLight, fontFamily: 'Inter_400Regular', fontSize: 11, lineHeight: 17, marginTop: 5 },
+  languageBlock: { marginTop: spacing[3], padding: spacing[3], borderRadius: 18, borderWidth: 1, borderColor: 'rgba(112,229,255,0.14)', backgroundColor: 'rgba(33,212,255,0.035)' },
+  languageLabelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing[3] },
+  languageCopy: { flex: 1 },
+  languageTitle: { color: colors.white, fontFamily: 'Inter_600SemiBold', fontSize: 13 },
+  languageDetail: { color: colors.gray, fontFamily: 'Inter_400Regular', fontSize: 9, marginTop: 3 },
+  languageChoices: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[3] },
+  languageChoice: { flex: 1, minHeight: 44, borderRadius: 13, borderWidth: 1, borderColor: colors.line, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
+  languageChoiceActive: { backgroundColor: 'rgba(33,212,255,0.14)', borderColor: 'rgba(112,229,255,0.38)' },
+  languageCode: { color: colors.gray, fontFamily: 'Inter_700Bold', fontSize: 10, letterSpacing: 1 },
+  languageCodeActive: { color: colors.cyan300 },
+  languageName: { color: colors.grayLight, fontFamily: 'Inter_500Medium', fontSize: 11 },
+  languageNameActive: { color: colors.white },
   pressed: { opacity: 0.72, transform: [{ scale: 0.985 }] },
   wordmarkRow: { flexDirection: 'row', alignItems: 'baseline' },
   wordmark: { fontFamily: 'Inter_700Bold', fontSize: 23, letterSpacing: 2.1, color: colors.white },

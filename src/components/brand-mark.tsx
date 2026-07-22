@@ -3,6 +3,7 @@ import { Animated, Easing, Image, Platform, StyleSheet, View } from 'react-nativ
 
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { colors } from '@/theme/tokens';
+import { useI18n } from '@/i18n/provider';
 
 const logoSource = require('../../assets/brand/safefloor-logo-ui.png');
 const pearlSource = require('../../assets/brand/safefloor-pearl.png');
@@ -13,6 +14,7 @@ type MotionProps = {
 };
 
 export function BrandMark({ size = 96, animated = true }: MotionProps) {
+  const { tx } = useI18n();
   const [motion] = useState(() => new Animated.Value(0));
   const reducedMotion = useReducedMotion();
 
@@ -36,7 +38,7 @@ export function BrandMark({ size = 96, animated = true }: MotionProps) {
   const height = size * 0.932;
 
   return (
-    <View accessible accessibilityLabel="SAFEFLOOR Logo – geschützter Kern" style={{ width: size, height, position: 'relative' }}>
+    <View accessible accessibilityLabel={tx('SAFEFLOOR Logo – geschützter Kern', 'SAFEFLOOR logo – protected core')} style={{ width: size, height, position: 'relative' }}>
       <Animated.View pointerEvents="none" style={[brandStyles.logoGlowWrap, { opacity: glowOpacity, transform: [{ scale }] }]}>
         <View style={brandStyles.logoGlow} />
       </Animated.View>
@@ -48,6 +50,7 @@ export function BrandMark({ size = 96, animated = true }: MotionProps) {
 }
 
 export function PearlAvatar({ size = 82, animated = true }: MotionProps) {
+  const { tx } = useI18n();
   const [rotation] = useState(() => new Animated.Value(0));
   const reducedMotion = useReducedMotion();
 
@@ -73,7 +76,7 @@ export function PearlAvatar({ size = 82, animated = true }: MotionProps) {
   const pearlSize = size * 0.68;
 
   return (
-    <View accessible accessibilityLabel="Anonymes SAFEFLOOR Profil – leuchtende Perle" style={[brandStyles.pearlFrame, { width: size, height: size, borderRadius: size }]}>
+    <View accessible accessibilityLabel={tx('Anonymes SAFEFLOOR Profil – leuchtende Perle', 'Anonymous SAFEFLOOR profile – glowing pearl')} style={[brandStyles.pearlFrame, { width: size, height: size, borderRadius: size }]}>
       <View pointerEvents="none" style={[brandStyles.pearlHalo, { width: size * 0.74, height: size * 0.74, borderRadius: size }]} />
       <View pointerEvents="none" style={[brandStyles.pearlOrbit, { width: size * 0.9, height: size * 0.9, borderRadius: size }]} />
       <Animated.Image

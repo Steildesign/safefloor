@@ -21,6 +21,13 @@
     },
     "plugins": [
       "expo-router",
+      "@maplibre/maplibre-react-native",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "SAFEFLOOR nutzt deinen Standort nur, um dich auf der Karte zu orientieren. Er wird nicht veröffentlicht."
+        }
+      ],
       [
         "expo-splash-screen",
         {

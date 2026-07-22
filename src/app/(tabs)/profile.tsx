@@ -6,34 +6,36 @@ import { PearlAvatar } from '@/components/brand-mark';
 import { SeoHead } from '@/components/seo-head';
 import { ActionRow, AppHeader, AppScreen, Card, SectionTitle } from '@/components/ui';
 import { colors, spacing } from '@/theme/tokens';
+import { useI18n } from '@/i18n/provider';
 
 export default function ProfileScreen() {
+  const { tx } = useI18n();
   return (
     <AppScreen>
       <SeoHead title="Profil" description="Lokale SAFEFLOOR Einstellungen, Vertrauenspersonen und Datenschutzoptionen." noIndex />
-      <AppHeader title="Profil" />
+      <AppHeader title={tx('Profil', 'Profile')} />
       <View style={profileStyles.profileHero}>
         <PearlAvatar size={94} />
         <Text style={profileStyles.alias}>Alex</Text>
-        <View style={profileStyles.aliasMeta}><View style={profileStyles.aliasDot} /><Text style={profileStyles.subtitle}>Demo-Alias · keine Anmeldung</Text></View>
+        <View style={profileStyles.aliasMeta}><View style={profileStyles.aliasDot} /><Text style={profileStyles.subtitle}>{tx('Demo-Alias · keine Anmeldung', 'Demo alias · no sign-in')}</Text></View>
       </View>
 
-      <SectionTitle>Dein Sicherheitsnetz</SectionTitle>
-      <ActionRow icon={PhoneCall} title="Notfallkontakte" detail="3 lokale Demo-Kontakte gespeichert." onPress={() => router.push('/trusted-contacts')} />
-      <ActionRow icon={HeartHandshake} title="Vertrauenspersonen" detail="2 lokale Demo-Kontakte gespeichert." onPress={() => router.push('/trusted-contacts')} />
-      <ActionRow icon={ShieldCheck} title="Persönlicher Sicherheitsplan" detail="Was hilft dir, ruhiger zu werden?" onPress={() => router.push('/aftercare')} />
-      <ActionRow icon={Clock3} title="Erinnerungseinstellungen" detail="Atemübungen und lokale Check-ins." onPress={() => {}} />
+      <SectionTitle>{tx('Dein Sicherheitsnetz', 'Your safety network')}</SectionTitle>
+      <ActionRow icon={PhoneCall} title={tx('Notfallkontakte', 'Emergency contacts')} detail={tx('3 lokale Demo-Kontakte gespeichert.', '3 local demo contacts saved.')} onPress={() => router.push('/trusted-contacts')} />
+      <ActionRow icon={HeartHandshake} title={tx('Vertrauenspersonen', 'Trusted people')} detail={tx('2 lokale Demo-Kontakte gespeichert.', '2 local demo contacts saved.')} onPress={() => router.push('/trusted-contacts')} />
+      <ActionRow icon={ShieldCheck} title={tx('Persönlicher Sicherheitsplan', 'Personal safety plan')} detail={tx('Was hilft dir, ruhiger zu werden?', 'What helps you feel calmer?')} onPress={() => router.push('/aftercare')} />
+      <ActionRow icon={Clock3} title={tx('Erinnerungseinstellungen', 'Reminder settings')} detail={tx('Atemübungen und lokale Check-ins.', 'Breathing exercises and local check-ins.')} onPress={() => {}} />
 
-      <SectionTitle>Privatsphäre & Nutzung</SectionTitle>
-      <ActionRow icon={FileLock2} title="Datenschutz" detail="Lokale Daten, Einwilligungen und spätere Löschoptionen." onPress={() => {}} />
-      <ActionRow icon={BellOff} title="Neutrale Mitteilungen" detail="Push ist im Prototyp vollständig deaktiviert." onPress={() => {}} />
-      <ActionRow icon={Accessibility} title="Barrierefreiheit" detail="Reduzierte Bewegung, große Ziele und klare Kontraste." onPress={() => {}} />
+      <SectionTitle>{tx('Privatsphäre & Nutzung', 'Privacy & use')}</SectionTitle>
+      <ActionRow icon={FileLock2} title={tx('Datenschutz', 'Privacy')} detail={tx('Lokale Daten, Einwilligungen und spätere Löschoptionen.', 'Local data, consent and future deletion options.')} onPress={() => {}} />
+      <ActionRow icon={BellOff} title={tx('Neutrale Mitteilungen', 'Neutral notifications')} detail={tx('Push ist im Prototyp vollständig deaktiviert.', 'Push is fully disabled in the prototype.')} onPress={() => {}} />
+      <ActionRow icon={Accessibility} title={tx('Barrierefreiheit', 'Accessibility')} detail={tx('Reduzierte Bewegung, große Ziele und klare Kontraste.', 'Reduced motion, large targets and clear contrast.')} onPress={() => {}} />
 
       <Card tone="amber" style={profileStyles.emergencyCard}>
         <View style={profileStyles.emergencyRow}>
           <View style={profileStyles.emergencyCopy}>
-            <Text style={profileStyles.emergencyTitle}>Notfallzugriff</Text>
-            <Text style={profileStyles.emergencyText}>112 und Safety-Check bleiben unabhängig von Konto oder KI erreichbar.</Text>
+            <Text style={profileStyles.emergencyTitle}>{tx('Notfallzugriff', 'Emergency access')}</Text>
+            <Text style={profileStyles.emergencyText}>{tx('112 und Safety-Check bleiben unabhängig von Konto oder KI erreichbar.', '112 and the safety check remain available without an account or AI.')}</Text>
           </View>
           <ChevronRight color={colors.amber400} size={21} />
         </View>

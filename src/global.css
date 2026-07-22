@@ -24,7 +24,7 @@ body {
   width: min(100%, 430px);
   min-height: 100dvh;
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   background: #050d17;
 }
 

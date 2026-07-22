@@ -10,6 +10,7 @@ import { SeoHead } from '@/components/seo-head';
 import { AppHeader, AppScreen, Body, Button, Card, Chip, Title } from '@/components/ui';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { colors, spacing } from '@/theme/tokens';
+import { useI18n } from '@/i18n/provider';
 
 type Mode = '4–4' | '4–7–8';
 type SequenceStep = { label: string; seconds: number; phase: BreathingPhase };
@@ -20,13 +21,14 @@ const sequences: Record<Mode, SequenceStep[]> = {
 };
 
 export default function BreathingScreen() {
+  const { tx } = useI18n();
   const [mode, setMode] = useState<Mode>('4–4');
   const [phase, setPhase] = useState(0);
   const [remaining, setRemaining] = useState(sequences[mode][0].seconds);
   const [running, setRunning] = useState(false);
   const [started, setStarted] = useState(false);
   const [cycles, setCycles] = useState(0);
-  const sequence = useMemo(() => sequences[mode], [mode]);
+  const sequence = useMemo(() => sequences[mode].map((step) => ({ ...step, label: step.phase === 'inhale' ? tx('Atme ein', 'Breathe in') : step.phase === 'exhale' ? tx('Atme aus', 'Breathe out') : tx('Sanft halten', 'Hold gently') })), [mode, tx]);
 
   useEffect(() => {
     if (!running) return;
@@ -79,26 +81,26 @@ export default function BreathingScreen() {
         />
       ) : (
         <>
-          <AppHeader title="Atemhilfe" back />
-          <View style={breathingStyles.activeRow}><View style={breathingStyles.activeDot} /><Text style={breathingStyles.activeText}>LÄUFT LOKAL · BLEIBT PRIVAT</Text></View>
+          <AppHeader title={tx('Atemhilfe', 'Breathing')} back />
+          <View style={breathingStyles.activeRow}><View style={breathingStyles.activeDot} /><Text style={breathingStyles.activeText}>{tx('LÄUFT LOKAL · BLEIBT PRIVAT', 'RUNS LOCALLY · STAYS PRIVATE')}</Text></View>
           <View style={breathingStyles.previewHero}>
             <BreathingField phase="exhale" phaseSeconds={4} running={false} size={246} />
-            <Title style={breathingStyles.previewTitle}>Nur du und dein Atem.</Title>
-            <Body muted style={breathingStyles.guidance}>Nach dem Start zieht sich die Oberfläche zurück. Folge nur der Bewegung der Perle und den ruhigen Wellen.</Body>
+            <Title style={breathingStyles.previewTitle}>{tx('Nur du und dein Atem.', 'Just you and your breath.')}</Title>
+            <Body muted style={breathingStyles.guidance}>{tx('Nach dem Start zieht sich die Oberfläche zurück. Folge nur der Bewegung der Perle und den ruhigen Wellen.', 'Once you start, the interface steps back. Follow only the pearl and the calm waves.')}</Body>
           </View>
           <View style={breathingStyles.modeRow}>
-            <Chip label="4–4 · sanft" active={mode === '4–4'} onPress={() => selectMode('4–4')} />
+            <Chip label={tx('4–4 · sanft', '4–4 · gentle')} active={mode === '4–4'} onPress={() => selectMode('4–4')} />
             <Chip label="4–7–8" active={mode === '4–7–8'} onPress={() => selectMode('4–7–8')} />
           </View>
-          <Button label="Atemübung starten" icon={Play} onPress={start} />
+          <Button label={tx('Atemübung starten', 'Start breathing')} icon={Play} onPress={start} />
           {cycles > 0 ? (
             <Card style={breathingStyles.completedCard}>
-              <Text style={breathingStyles.completedLabel}>LETZTE ÜBUNG</Text>
-              <Text style={breathingStyles.completedValue}>{cycles} ruhige {cycles === 1 ? 'Runde' : 'Runden'}</Text>
+              <Text style={breathingStyles.completedLabel}>{tx('LETZTE ÜBUNG', 'LAST EXERCISE')}</Text>
+              <Text style={breathingStyles.completedValue}>{cycles} {tx(cycles === 1 ? 'ruhige Runde' : 'ruhige Runden', cycles === 1 ? 'calm round' : 'calm rounds')}</Text>
             </Card>
           ) : null}
           <View style={breathingStyles.speakButton}>
-            <Button label="Lieber sprechen" icon={MessageCircle} tone="ghost" onPress={() => router.replace('/chat')} />
+            <Button label={tx('Lieber sprechen', 'I would rather talk')} icon={MessageCircle} tone="ghost" onPress={() => router.replace('/chat')} />
           </View>
         </>
       )}
@@ -118,6 +120,7 @@ type FocusBreathingSessionProps = {
 };
 
 function FocusBreathingSession({ cycles, mode, phaseKey, remaining, running, step, onFinish, onToggle }: FocusBreathingSessionProps) {
+  const { tx } = useI18n();
   const [entrance] = useState(() => new Animated.Value(0));
   const [controlsOpacity] = useState(() => new Animated.Value(1));
   const [controlsVisible, setControlsVisible] = useState(true);
@@ -159,7 +162,7 @@ function FocusBreathingSession({ cycles, mode, phaseKey, remaining, running, ste
   };
 
   return (
-    <Pressable accessibilityLabel="Steuerung der Atemübung einblenden" onPress={revealControls} style={breathingStyles.focusRoot}>
+    <Pressable accessibilityLabel={tx('Steuerung der Atemübung einblenden', 'Show breathing controls')} onPress={revealControls} style={breathingStyles.focusRoot}>
       <LinearGradient
         colors={['rgba(2,9,16,0.70)', 'rgba(5,17,28,0.30)', 'rgba(2,8,14,0.76)']}
         locations={[0, 0.5, 1]}
@@ -177,21 +180,21 @@ function FocusBreathingSession({ cycles, mode, phaseKey, remaining, running, ste
         ]}
       >
         <BreathingField phase={step.phase} phaseSeconds={step.seconds} running={running} size={330} />
-        <PhaseReadout key={phaseKey} label={running ? step.label : 'Pausiert'} remaining={remaining} />
+        <PhaseReadout key={phaseKey} label={running ? step.label : tx('Pausiert', 'Paused')} remaining={remaining} />
       </Animated.View>
 
       <Animated.View pointerEvents={controlsVisible ? 'box-none' : 'none'} style={[breathingStyles.focusControls, { opacity: controlsOpacity }]}>
         <View style={breathingStyles.focusTopRow}>
-          <Text style={breathingStyles.focusMeta}>{mode} · RUNDE {cycles + 1}</Text>
-          <GlassControl accessibilityLabel="Atemübung beenden" onPress={onFinish}>
+          <Text style={breathingStyles.focusMeta}>{mode} · {tx('RUNDE', 'ROUND')} {cycles + 1}</Text>
+          <GlassControl accessibilityLabel={tx('Atemübung beenden', 'End breathing exercise')} onPress={onFinish}>
             <X color={colors.grayLight} size={20} />
           </GlassControl>
         </View>
         <View style={breathingStyles.focusBottomRow}>
-          <GlassControl accessibilityLabel={running ? 'Atemübung pausieren' : 'Atemübung fortsetzen'} large onPress={onToggle}>
+          <GlassControl accessibilityLabel={running ? tx('Atemübung pausieren', 'Pause breathing exercise') : tx('Atemübung fortsetzen', 'Resume breathing exercise')} large onPress={onToggle}>
             {running ? <Pause color={colors.white} size={22} /> : <Play color={colors.white} size={22} />}
           </GlassControl>
-          <Text style={breathingStyles.focusHint}>{running ? 'Antippen für Steuerung' : 'Du kannst fortsetzen, wenn du bereit bist.'}</Text>
+          <Text style={breathingStyles.focusHint}>{running ? tx('Antippen für Steuerung', 'Tap for controls') : tx('Du kannst fortsetzen, wenn du bereit bist.', 'Continue when you are ready.')}</Text>
         </View>
       </Animated.View>
     </Pressable>
@@ -199,6 +202,7 @@ function FocusBreathingSession({ cycles, mode, phaseKey, remaining, running, ste
 }
 
 function PhaseReadout({ label, remaining }: { label: string; remaining: number }) {
+  const { tx } = useI18n();
   const [appearance] = useState(() => new Animated.Value(0));
   const reducedMotion = useReducedMotion();
 
@@ -219,7 +223,7 @@ function PhaseReadout({ label, remaining }: { label: string; remaining: number }
     <Animated.View style={{ opacity: appearance, transform: [{ translateY: appearance.interpolate({ inputRange: [0, 1], outputRange: [7, 0] }) }] }}>
       <Text accessibilityLiveRegion="polite" style={breathingStyles.phase}>{label}</Text>
       <Text style={breathingStyles.timer}>{remaining}</Text>
-      <Text style={breathingStyles.seconds}>SEKUNDEN</Text>
+      <Text style={breathingStyles.seconds}>{tx('SEKUNDEN', 'SECONDS')}</Text>
     </Animated.View>
   );
 }

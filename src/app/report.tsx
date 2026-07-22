@@ -6,12 +6,15 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { BrandMark } from '@/components/brand-mark';
 import { SeoHead } from '@/components/seo-head';
 import { AppHeader, AppScreen, Body, Button, Card, Chip, Eyebrow, Title } from '@/components/ui';
-import { reportCategories } from '@/data/mock';
+import { getReportCategories } from '@/data/mock';
 import { colors, radii, spacing } from '@/theme/tokens';
+import { useI18n } from '@/i18n/provider';
 
 const identityPattern = /(?:\b[\w.-]+@[\w.-]+\.[a-z]{2,}\b|\+?\d[\d\s/-]{7,}|\b(?:herr|frau)\s+[A-ZÄÖÜ][a-zäöüß]+)/i;
 
 export default function ReportScreen() {
+  const { locale, tx } = useI18n();
+  const reportCategories = getReportCategories(locale);
   const [step, setStep] = useState(1);
   const [category, setCategory] = useState<string | null>(null);
   const [time, setTime] = useState('Jetzt');
@@ -29,17 +32,17 @@ export default function ReportScreen() {
           <BrandMark size={142} />
           <View style={reportStyles.checkBubble}><Check color={colors.black} size={24} /></View>
         </View>
-        <Eyebrow>LOKALE PROTOTYP-SIMULATION</Eyebrow>
-        <Title style={reportStyles.centerText}>Danke für deinen Hinweis.</Title>
-        <Body muted style={reportStyles.confirmBody}>Es wurden keine Daten übertragen. Der spätere Versand wird nur nach erneuter Bestätigung und mit klarer Moderationslogik möglich sein.</Body>
+        <Eyebrow>{tx('LOKALE PROTOTYP-SIMULATION', 'LOCAL PROTOTYPE SIMULATION')}</Eyebrow>
+        <Title style={reportStyles.centerText}>{tx('Danke für deinen Hinweis.', 'Thank you for the notice.')}</Title>
+        <Body muted style={reportStyles.confirmBody}>{tx('Es wurden keine Daten übertragen. Der spätere Versand wird nur nach erneuter Bestätigung und mit klarer Moderationslogik möglich sein.', 'No data was transmitted. A future submission will require another confirmation and clear moderation logic.')}</Body>
         <Card tone="cyan" style={reportStyles.confirmCard}>
-          <View style={reportStyles.confirmLine}><LockKeyhole color={colors.cyan400} size={18} /><Text style={reportStyles.confirmLineText}>Kein Klarnamenfeld vorgesehen</Text></View>
-          <View style={reportStyles.confirmLine}><ShieldCheck color={colors.cyan400} size={18} /><Text style={reportStyles.confirmLineText}>Keine automatische Veröffentlichung</Text></View>
-          <View style={reportStyles.confirmLine}><Eye color={colors.cyan400} size={18} /><Text style={reportStyles.confirmLineText}>Menschliche Moderation ist eingeplant</Text></View>
+          <View style={reportStyles.confirmLine}><LockKeyhole color={colors.cyan400} size={18} /><Text style={reportStyles.confirmLineText}>{tx('Kein Klarnamenfeld vorgesehen', 'No legal-name field planned')}</Text></View>
+          <View style={reportStyles.confirmLine}><ShieldCheck color={colors.cyan400} size={18} /><Text style={reportStyles.confirmLineText}>{tx('Keine automatische Veröffentlichung', 'No automatic publication')}</Text></View>
+          <View style={reportStyles.confirmLine}><Eye color={colors.cyan400} size={18} /><Text style={reportStyles.confirmLineText}>{tx('Menschliche Moderation ist eingeplant', 'Human moderation is planned')}</Text></View>
         </Card>
         <View style={reportStyles.confirmActions}>
-          <Button label="Zur Community" onPress={() => router.replace('/(tabs)/community')} />
-          <Button label="Weitere Meldung simulieren" tone="ghost" onPress={() => { setStep(1); setCategory(null); setDetails(''); }} />
+          <Button label={tx('Zur Community', 'Back to community')} onPress={() => router.replace('/(tabs)/community')} />
+          <Button label={tx('Weitere Meldung simulieren', 'Simulate another report')} tone="ghost" onPress={() => { setStep(1); setCategory(null); setDetails(''); }} />
         </View>
       </AppScreen>
     );
@@ -48,16 +51,16 @@ export default function ReportScreen() {
   return (
     <AppScreen>
       <SeoHead title="Beobachtung melden" description="Dreistufiger SAFEFLOOR Prototyp für datensparsame Community-Meldungen." noIndex />
-      <AppHeader title="Beobachtung melden" back />
+      <AppHeader title={tx('Beobachtung melden', 'Report an observation')} back />
       <View style={reportStyles.progress}>
         {[1, 2, 3].map((item) => <View key={item} style={[reportStyles.progressSegment, item <= step && reportStyles.progressActive]} />)}
       </View>
 
       {step === 1 ? (
         <>
-          <Eyebrow tone="amber">SCHRITT 1 VON 3</Eyebrow>
-          <Title>Was möchtest du melden?</Title>
-          <Body muted style={reportStyles.intro}>Wähle die Kategorie, die am besten passt. Es wird noch nichts gesendet.</Body>
+          <Eyebrow tone="amber">{tx('SCHRITT 1 VON 3', 'STEP 1 OF 3')}</Eyebrow>
+          <Title>{tx('Was möchtest du melden?', 'What would you like to report?')}</Title>
+          <Body muted style={reportStyles.intro}>{tx('Wähle die Kategorie, die am besten passt. Es wird noch nichts gesendet.', 'Choose the category that fits best. Nothing is sent yet.')}</Body>
           <View style={reportStyles.categoryList}>
             {reportCategories.map((item, index) => (
               <Card key={item.id} tone={category === item.id ? (item.tone === 'amber' ? 'amber' : 'cyan') : 'default'} onPress={() => setCategory(item.id)} accessibilityLabel={`${item.title}. ${item.description}`}>
@@ -69,25 +72,25 @@ export default function ReportScreen() {
               </Card>
             ))}
           </View>
-          <Button label="Details ergänzen" onPress={() => setStep(2)} disabled={!category} />
+          <Button label={tx('Details ergänzen', 'Add details')} onPress={() => setStep(2)} disabled={!category} />
         </>
       ) : (
         <>
-          <Eyebrow tone="amber">SCHRITT 2 VON 3</Eyebrow>
-          <Title>Nur das Wesentliche.</Title>
-          <Body muted style={reportStyles.intro}>Keine Namen, Kontaktdaten, genauen Adressen oder Anschuldigungen gegen Einzelpersonen.</Body>
+          <Eyebrow tone="amber">{tx('SCHRITT 2 VON 3', 'STEP 2 OF 3')}</Eyebrow>
+          <Title>{tx('Nur das Wesentliche.', 'Only what matters.')}</Title>
+          <Body muted style={reportStyles.intro}>{tx('Keine Namen, Kontaktdaten, genauen Adressen oder Anschuldigungen gegen Einzelpersonen.', 'No names, contact details, exact addresses or accusations against individuals.')}</Body>
 
-          <Text style={reportStyles.label}>Ausgewählte Kategorie</Text>
+          <Text style={reportStyles.label}>{tx('Ausgewählte Kategorie', 'Selected category')}</Text>
           <Card tone="cyan" style={reportStyles.selectedCard}>
             <Text style={reportStyles.selectedTitle}>{selected?.title}</Text>
-            <Pressable onPress={() => setStep(1)}><Text style={reportStyles.change}>Ändern</Text></Pressable>
+            <Pressable onPress={() => setStep(1)}><Text style={reportStyles.change}>{tx('Ändern', 'Change')}</Text></Pressable>
           </Card>
 
-          <Text style={reportStyles.label}>Wann?</Text>
-          <View style={reportStyles.chips}>{['Jetzt', 'Unter 30 Min.', 'Heute'].map((item) => <Chip key={item} label={item} active={time === item} onPress={() => setTime(item)} />)}</View>
+          <Text style={reportStyles.label}>{tx('Wann?', 'When?')}</Text>
+          <View style={reportStyles.chips}>{[tx('Jetzt', 'Now'), tx('Unter 30 Min.', 'Under 30 min'), tx('Heute', 'Today')].map((item) => <Chip key={item} label={item} active={time === item} onPress={() => setTime(item)} />)}</View>
 
-          <Text style={reportStyles.label}>Grober Bereich</Text>
-          <View style={reportStyles.chips}>{['Bereich Nord', 'Haupthalle', 'Außenbereich'].map((item) => <Chip key={item} label={item} active={zone === item} onPress={() => setZone(item)} />)}</View>
+          <Text style={reportStyles.label}>{tx('Grober Bereich', 'Approximate area')}</Text>
+          <View style={reportStyles.chips}>{[tx('Bereich Nord', 'North area'), tx('Haupthalle', 'Main hall'), tx('Außenbereich', 'Outdoor area')].map((item) => <Chip key={item} label={item} active={zone === item} onPress={() => setZone(item)} />)}</View>
 
           <Text style={reportStyles.label}>Kurze Beschreibung · optional</Text>
           <View style={[reportStyles.inputWrap, containsIdentity && reportStyles.inputWarning]}>
@@ -114,8 +117,8 @@ export default function ReportScreen() {
             <View style={reportStyles.summaryLine}><MapPin color={colors.gray} size={16} /><Text style={reportStyles.summaryText}>{zone} · {time}</Text></View>
             <View style={reportStyles.summaryLine}><HeartHandshake color={colors.gray} size={16} /><Text style={reportStyles.summaryText}>{awareness ? 'Awareness gewünscht' : 'Keine Kontaktanfrage'}</Text></View>
           </Card>
-          <Button label="Meldung lokal simulieren" icon={Send} tone="amber" onPress={() => setStep(3)} disabled={containsIdentity} />
-          <Text style={reportStyles.prototypeNote}>Kein Netzwerkaufruf · keine Speicherung · keine Veröffentlichung</Text>
+          <Button label={tx('Meldung lokal simulieren', 'Simulate report locally')} icon={Send} tone="amber" onPress={() => setStep(3)} disabled={containsIdentity} />
+          <Text style={reportStyles.prototypeNote}>{tx('Kein Netzwerkaufruf · keine Speicherung · keine Veröffentlichung', 'No network call · no storage · no publication')}</Text>
         </>
       )}
     </AppScreen>

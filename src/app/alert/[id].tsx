@@ -4,27 +4,30 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { SeoHead } from '@/components/seo-head';
 import { AppHeader, AppScreen, Body, Button, Card, Eyebrow, SectionTitle, Title } from '@/components/ui';
-import { alerts } from '@/data/mock';
+import { alerts, getAlerts } from '@/data/mock';
 import { colors, radii, spacing } from '@/theme/tokens';
+import { useI18n } from '@/i18n/provider';
 
 export function generateStaticParams(): { id: string }[] {
   return alerts.map((alert) => ({ id: alert.id }));
 }
 
 export default function AlertDetailScreen() {
+  const { locale, tx } = useI18n();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const alert = alerts.find((item) => item.id === id) ?? alerts[0];
+  const localizedAlerts = getAlerts(locale);
+  const alert = localizedAlerts.find((item) => item.id === id) ?? localizedAlerts[0];
 
   return (
     <AppScreen>
       <SeoHead title={alert.title} description={alert.body} noIndex />
-      <AppHeader title="Hinweis" back />
+      <AppHeader title={tx('Hinweis', 'Notice')} back />
       <Eyebrow tone={alert.kind === 'community' ? 'amber' : 'cyan'}>{alert.eyebrow}</Eyebrow>
       <Title>{alert.title}</Title>
       <Body style={detailStyles.lead}>{alert.body}</Body>
       <View style={detailStyles.metaGrid}>
         <Card style={detailStyles.metaCard}><ShieldCheck color={colors.cyan400} size={20} /><Text style={detailStyles.metaLabel}>Status</Text><Text style={detailStyles.metaValue}>{alert.confidence}</Text></Card>
-        <Card style={detailStyles.metaCard}><Clock3 color={colors.cyan400} size={20} /><Text style={detailStyles.metaLabel}>Aktualität</Text><Text style={detailStyles.metaValue}>{alert.time}</Text></Card>
+        <Card style={detailStyles.metaCard}><Clock3 color={colors.cyan400} size={20} /><Text style={detailStyles.metaLabel}>{tx('Aktualität', 'Freshness')}</Text><Text style={detailStyles.metaValue}>{alert.time}</Text></Card>
       </View>
 
       <View style={detailStyles.map}>
@@ -32,21 +35,21 @@ export default function AlertDetailScreen() {
         <View style={[detailStyles.road, { top: 125, transform: [{ rotate: '16deg' }] }]} />
         <View style={detailStyles.area}><View style={detailStyles.areaCore} /></View>
         <View style={detailStyles.mapLabel}><MapPin color={colors.amber400} size={16} /><Text style={detailStyles.mapText}>{alert.location}</Text></View>
-        <Text style={detailStyles.mapPrivacy}>Absichtlich unscharfer Bereich</Text>
+        <Text style={detailStyles.mapPrivacy}>{tx('Absichtlich unscharfer Bereich', 'Intentionally approximate area')}</Text>
       </View>
 
-      <SectionTitle>Was du jetzt tun kannst</SectionTitle>
-      <Card><View style={detailStyles.step}><Text style={detailStyles.stepIndex}>01</Text><Text style={detailStyles.stepText}>Achte auf ungewöhnliche Warnzeichen und bleibe nicht allein.</Text></View></Card>
-      <Card><View style={detailStyles.step}><Text style={detailStyles.stepIndex}>02</Text><Text style={detailStyles.stepText}>Nutze eine Wasserstation, Ruhezone oder ein Awareness-Team vor Ort.</Text></View></Card>
-      <Card><View style={detailStyles.step}><Text style={detailStyles.stepIndex}>03</Text><Text style={detailStyles.stepText}>Bei Bewusstlosigkeit, schwerer Atemnot oder akuter Gefahr sofort 112.</Text></View></Card>
+      <SectionTitle>{tx('Was du jetzt tun kannst', 'What you can do now')}</SectionTitle>
+      <Card><View style={detailStyles.step}><Text style={detailStyles.stepIndex}>01</Text><Text style={detailStyles.stepText}>{tx('Achte auf ungewöhnliche Warnzeichen und bleibe nicht allein.', 'Look for unusual warning signs and do not stay alone.')}</Text></View></Card>
+      <Card><View style={detailStyles.step}><Text style={detailStyles.stepIndex}>02</Text><Text style={detailStyles.stepText}>{tx('Nutze eine Wasserstation, Ruhezone oder ein Awareness-Team vor Ort.', 'Use a water station, quiet area or the on-site awareness team.')}</Text></View></Card>
+      <Card><View style={detailStyles.step}><Text style={detailStyles.stepIndex}>03</Text><Text style={detailStyles.stepText}>{tx('Bei Bewusstlosigkeit, schwerer Atemnot oder akuter Gefahr sofort 112.', 'Call 112 immediately for unconsciousness, severe breathing difficulty or immediate danger.')}</Text></View></Card>
 
-      <SectionTitle>Transparenz</SectionTitle>
+      <SectionTitle>{tx('Transparenz', 'Transparency')}</SectionTitle>
       <Card tone="cyan">
-        <View style={detailStyles.transparency}><UserRoundCheck color={colors.cyan400} size={24} /><Text style={detailStyles.transparencyText}>Diese Demo zeigt keine Rohmeldungen oder identifizierenden Texte. Der veröffentlichte Hinweis wäre neutral redigiert und zeitlich begrenzt.</Text></View>
+        <View style={detailStyles.transparency}><UserRoundCheck color={colors.cyan400} size={24} /><Text style={detailStyles.transparencyText}>{tx('Diese Demo zeigt keine Rohmeldungen oder identifizierenden Texte. Der veröffentlichte Hinweis wäre neutral redigiert und zeitlich begrenzt.', 'This demo shows no raw reports or identifying text. A published notice would be neutrally edited and time-limited.')}</Text></View>
       </Card>
       <View style={detailStyles.actions}>
-        <Button label="Hilfe öffnen" onPress={() => router.push('/(tabs)/help')} />
-        <Button label="Kartenansicht" icon={Map} tone="ghost" onPress={() => router.push('/(tabs)/community')} />
+        <Button label={tx('Hilfe öffnen', 'Open support')} onPress={() => router.push('/(tabs)/help')} />
+        <Button label={tx('Kartenansicht', 'Map view')} icon={Map} tone="ghost" onPress={() => router.push('/(tabs)/community')} />
       </View>
     </AppScreen>
   );

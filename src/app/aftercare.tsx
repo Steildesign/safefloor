@@ -5,37 +5,40 @@ import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { SeoHead } from '@/components/seo-head';
 import { ActionRow, AppHeader, AppScreen, Body, Card, Chip, Eyebrow, SectionTitle, Title } from '@/components/ui';
-import { resources } from '@/data/mock';
+import { getResources } from '@/data/mock';
 import { colors, spacing } from '@/theme/tokens';
+import { useI18n } from '@/i18n/provider';
 
 export default function AftercareScreen() {
+  const { locale, tx } = useI18n();
+  const resources = getResources(locale);
   const [physical, setPhysical] = useState<string | null>(null);
   const [emotional, setEmotional] = useState<string | null>(null);
 
   return (
     <AppScreen>
       <SeoHead title="Nachsorge und Ressourcen" description="Ruhige Nachsorge, lokaler Check-in und reale Hilfsressourcen in SAFEFLOOR." noIndex />
-      <AppHeader title="Nachsorge" back />
-      <Eyebrow tone="amber">DU BIST WICHTIG</Eyebrow>
-      <Title>Kümmere dich um dich.</Title>
-      <Body muted style={aftercareStyles.intro}>Kleine nächste Schritte, ohne Bewertung und ohne Gesundheits-Score.</Body>
+      <AppHeader title={tx('Nachsorge', 'Aftercare')} back />
+      <Eyebrow tone="amber">{tx('DU BIST WICHTIG', 'YOU MATTER')}</Eyebrow>
+      <Title>{tx('Kümmere dich um dich.', 'Take care of yourself.')}</Title>
+      <Body muted style={aftercareStyles.intro}>{tx('Kleine nächste Schritte, ohne Bewertung und ohne Gesundheits-Score.', 'Small next steps, without judgement or a health score.')}</Body>
 
-      <SectionTitle>Was hilft jetzt?</SectionTitle>
-      <ActionRow icon={Sparkles} title="Reize reduzieren" detail="Licht, Lautstärke und Anforderungen für einen Moment senken." onPress={() => router.push('/grounding')} />
-      <ActionRow icon={MoonStar} title="Schlaf & Erholung" detail="Ruhige Umgebung vorbereiten und Unterstützung einplanen." onPress={() => {}} />
-      <ActionRow icon={Salad} title="Essen & Flüssigkeit" detail="Allgemeine, später fachlich zu prüfende Nachsorgehinweise." onPress={() => {}} />
-      <ActionRow icon={BookHeart} title="Privates Journal" detail="Im Prototyp nur als lokales Modul vorgesehen." onPress={() => {}} />
+      <SectionTitle>{tx('Was hilft jetzt?', 'What might help now?')}</SectionTitle>
+      <ActionRow icon={Sparkles} title={tx('Reize reduzieren', 'Reduce stimulation')} detail={tx('Licht, Lautstärke und Anforderungen für einen Moment senken.', 'Lower light, volume and demands for a moment.')} onPress={() => router.push('/grounding')} />
+      <ActionRow icon={MoonStar} title={tx('Schlaf & Erholung', 'Sleep & recovery')} detail={tx('Ruhige Umgebung vorbereiten und Unterstützung einplanen.', 'Prepare a calm environment and arrange support.')} onPress={() => {}} />
+      <ActionRow icon={Salad} title={tx('Essen & Flüssigkeit', 'Food & fluids')} detail={tx('Allgemeine, später fachlich zu prüfende Nachsorgehinweise.', 'General aftercare guidance pending professional review.')} onPress={() => {}} />
+      <ActionRow icon={BookHeart} title={tx('Privates Journal', 'Private journal')} detail={tx('Im Prototyp nur als lokales Modul vorgesehen.', 'Planned as a local-only module in the prototype.')} onPress={() => {}} />
 
-      <SectionTitle>Freiwilliger Check-in</SectionTitle>
+      <SectionTitle>{tx('Freiwilliger Check-in', 'Optional check-in')}</SectionTitle>
       <Card>
-        <Text style={aftercareStyles.question}>Wie fühlst du dich körperlich?</Text>
-        <View style={aftercareStyles.chips}>{['Ruhig', 'Erschöpft', 'Unwohl'].map((item) => <Chip key={item} label={item} active={physical === item} onPress={() => setPhysical(item)} />)}</View>
-        <Text style={aftercareStyles.question}>Wie fühlst du dich emotional?</Text>
-        <View style={aftercareStyles.chips}>{['Stabil', 'Empfindlich', 'Überfordert'].map((item) => <Chip key={item} label={item} active={emotional === item} onPress={() => setEmotional(item)} />)}</View>
-        {physical || emotional ? <View style={aftercareStyles.checkinResult}><HeartPulse color={colors.success} size={19} /><Text style={aftercareStyles.checkinText}>Nur auf diesem Bildschirm ausgewählt. Keine Diagnose, kein Score, keine Speicherung.</Text></View> : null}
+        <Text style={aftercareStyles.question}>{tx('Wie fühlst du dich körperlich?', 'How do you feel physically?')}</Text>
+        <View style={aftercareStyles.chips}>{[tx('Ruhig', 'Calm'), tx('Erschöpft', 'Exhausted'), tx('Unwohl', 'Unwell')].map((item) => <Chip key={item} label={item} active={physical === item} onPress={() => setPhysical(item)} />)}</View>
+        <Text style={aftercareStyles.question}>{tx('Wie fühlst du dich emotional?', 'How do you feel emotionally?')}</Text>
+        <View style={aftercareStyles.chips}>{[tx('Stabil', 'Stable'), tx('Empfindlich', 'Sensitive'), tx('Überfordert', 'Overwhelmed')].map((item) => <Chip key={item} label={item} active={emotional === item} onPress={() => setEmotional(item)} />)}</View>
+        {physical || emotional ? <View style={aftercareStyles.checkinResult}><HeartPulse color={colors.success} size={19} /><Text style={aftercareStyles.checkinText}>{tx('Nur auf diesem Bildschirm ausgewählt. Keine Diagnose, kein Score, keine Speicherung.', 'Selected only on this screen. No diagnosis, score or storage.')}</Text></View> : null}
       </Card>
 
-      <SectionTitle>Reale Hilfe</SectionTitle>
+      <SectionTitle>{tx('Reale Hilfe', 'Real-world help')}</SectionTitle>
       {resources.map((resource) => (
         <Pressable
           key={resource.id}
@@ -51,7 +54,7 @@ export default function AftercareScreen() {
           <View style={aftercareStyles.resourceSide}><Text style={aftercareStyles.availability}>{resource.availability}</Text><ChevronRight color={colors.gray} size={18} /></View>
         </Pressable>
       ))}
-      <Text style={aftercareStyles.footer}>Ressourcen sind Demo-Daten. Öffnungszeiten und regionale Stellen müssen vor Beta redaktionell verifiziert werden.</Text>
+      <Text style={aftercareStyles.footer}>{tx('Ressourcen sind Demo-Daten. Öffnungszeiten und regionale Stellen müssen vor Beta redaktionell verifiziert werden.', 'Resources are demo data. Opening times and regional services must be editorially verified before beta.')}</Text>
     </AppScreen>
   );
 }

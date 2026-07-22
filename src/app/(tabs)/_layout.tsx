@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { GlassSurface } from '@/components/glass-surface';
 import { useReducedMotion } from '@/hooks/use-reduced-motion';
 import { colors } from '@/theme/tokens';
+import { useI18n } from '@/i18n/provider';
 
 function useFocusMotion(focused: boolean) {
   const [motion] = useState(() => new Animated.Value(focused ? 1 : 0));
@@ -63,6 +64,7 @@ function CompanionIcon({ color, focused }: { color: unknown; size: number; focus
 }
 
 export default function TabLayout() {
+  const { tx } = useI18n();
   return (
     <Tabs
       screenOptions={{
@@ -88,11 +90,11 @@ export default function TabLayout() {
         sceneStyle: { backgroundColor: 'transparent' },
       }}
     >
-      <Tabs.Screen name="start" options={{ title: 'Start', tabBarIcon: tabIcon(Home) }} />
+      <Tabs.Screen name="start" options={{ title: tx('Start', 'Home'), tabBarIcon: tabIcon(Home) }} />
       <Tabs.Screen name="community" options={{ title: 'Community', tabBarIcon: tabIcon(UsersRound) }} />
-      <Tabs.Screen name="help" options={{ title: 'Begleiter', tabBarIcon: CompanionIcon }} />
-      <Tabs.Screen name="knowledge" options={{ title: 'Wissen', tabBarIcon: tabIcon(BookOpen) }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profil', tabBarIcon: tabIcon(CircleUserRound) }} />
+      <Tabs.Screen name="help" options={{ title: tx('Begleiter', 'Companion'), tabBarIcon: CompanionIcon }} />
+      <Tabs.Screen name="knowledge" options={{ title: tx('Wissen', 'Knowledge'), tabBarIcon: tabIcon(BookOpen) }} />
+      <Tabs.Screen name="profile" options={{ title: tx('Profil', 'Profile'), tabBarIcon: tabIcon(CircleUserRound) }} />
     </Tabs>
   );
 }

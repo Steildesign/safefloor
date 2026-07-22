@@ -15,6 +15,7 @@ import {
 } from '@expo-google-fonts/inter';
 
 import { colors } from '@/theme/tokens';
+import { I18nProvider } from '@/i18n/provider';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -31,8 +32,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
-      <Stack
+      <I18nProvider>
+        <StatusBar style="light" />
+        <Stack
         screenOptions={{
           headerShown: false,
           contentStyle: { backgroundColor: colors.midnight950 },
@@ -44,13 +46,17 @@ export default function RootLayout() {
         <Stack.Screen name="report" options={{ presentation: 'modal' }} />
         <Stack.Screen name="alert/[id]" />
         <Stack.Screen name="substance/[slug]" />
+        <Stack.Screen name="combination/[slug]" />
         <Stack.Screen name="safety-check" />
         <Stack.Screen name="breathing" />
         <Stack.Screen name="grounding" />
         <Stack.Screen name="chat" />
+        <Stack.Screen name="canvas" />
+        <Stack.Screen name="map" />
         <Stack.Screen name="aftercare" />
         <Stack.Screen name="trusted-contacts" />
-      </Stack>
+        </Stack>
+      </I18nProvider>
     </SafeAreaProvider>
   );
 }

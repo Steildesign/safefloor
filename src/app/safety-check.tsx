@@ -5,12 +5,15 @@ import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { SeoHead } from '@/components/seo-head';
 import { AppHeader, AppScreen, Body, Button, Card, Eyebrow, Title } from '@/components/ui';
-import { hasEmergencySignal, isSafetyCheckComplete, safetyQuestions, SafetyAnswers } from '@/domain/safety';
+import { getSafetyQuestions, hasEmergencySignal, isSafetyCheckComplete, safetyQuestions, SafetyAnswers } from '@/domain/safety';
 import { colors, spacing } from '@/theme/tokens';
+import { useI18n } from '@/i18n/provider';
 
 const initialAnswers: SafetyAnswers = Object.fromEntries(safetyQuestions.map((question) => [question.id, null]));
 
 export default function SafetyCheckScreen() {
+  const { locale, tx } = useI18n();
+  const localizedQuestions = getSafetyQuestions(locale);
   const [answers, setAnswers] = useState<SafetyAnswers>(initialAnswers);
   const emergency = useMemo(() => hasEmergencySignal(answers), [answers]);
   const complete = useMemo(() => isSafetyCheckComplete(answers), [answers]);
@@ -21,21 +24,21 @@ export default function SafetyCheckScreen() {
     return (
       <AppScreen motion="none" scroll={false} style={safetyStyles.emergencyScreen}>
         <SeoHead title="Notfallhinweis" description="SAFEFLOOR Notfallkarte mit 112 und klaren nächsten Schritten." noIndex />
-        <AppHeader title="Dringende Hilfe" back />
+        <AppHeader title={tx('Dringende Hilfe', 'Urgent help')} back />
         <View style={safetyStyles.emergencyIcon}><AlertOctagon color={colors.white} size={38} /></View>
-        <Eyebrow tone="amber">WARNZEICHEN ANGEGEBEN</Eyebrow>
-        <Title>Bitte hole jetzt reale Hilfe.</Title>
-        <Body style={safetyStyles.emergencyBody}>Wenn Lebensgefahr besteht oder die Person nicht normal atmet, rufe sofort 112. Beende an dieser Stelle den KI-Dialog.</Body>
+        <Eyebrow tone="amber">{tx('WARNZEICHEN ANGEGEBEN', 'WARNING SIGN SELECTED')}</Eyebrow>
+        <Title>{tx('Bitte hole jetzt reale Hilfe.', 'Please get real-world help now.')}</Title>
+        <Body style={safetyStyles.emergencyBody}>{tx('Wenn Lebensgefahr besteht oder die Person nicht normal atmet, rufe sofort 112. Beende an dieser Stelle den KI-Dialog.', 'If a life is at risk or the person is not breathing normally, call 112 now. Stop the AI conversation here.')}</Body>
         <Card tone="emergency" style={safetyStyles.emergencyCard}>
-          <View style={safetyStyles.emergencyStep}><Text style={safetyStyles.emergencyIndex}>01</Text><Text style={safetyStyles.emergencyText}>112 anrufen und Situation knapp beschreiben.</Text></View>
-          <View style={safetyStyles.emergencyStep}><Text style={safetyStyles.emergencyIndex}>02</Text><Text style={safetyStyles.emergencyText}>Eine anwesende Person oder das Personal dazuholen.</Text></View>
-          <View style={safetyStyles.emergencyStep}><Text style={safetyStyles.emergencyIndex}>03</Text><Text style={safetyStyles.emergencyText}>Person nicht allein lassen und Anweisungen der Leitstelle folgen.</Text></View>
+          <View style={safetyStyles.emergencyStep}><Text style={safetyStyles.emergencyIndex}>01</Text><Text style={safetyStyles.emergencyText}>{tx('112 anrufen und Situation knapp beschreiben.', 'Call 112 and describe the situation briefly.')}</Text></View>
+          <View style={safetyStyles.emergencyStep}><Text style={safetyStyles.emergencyIndex}>02</Text><Text style={safetyStyles.emergencyText}>{tx('Eine anwesende Person oder das Personal dazuholen.', 'Get someone nearby or a member of staff to help.')}</Text></View>
+          <View style={safetyStyles.emergencyStep}><Text style={safetyStyles.emergencyIndex}>03</Text><Text style={safetyStyles.emergencyText}>{tx('Person nicht allein lassen und Anweisungen der Leitstelle folgen.', 'Do not leave the person alone and follow the dispatcher’s instructions.')}</Text></View>
         </Card>
         <View style={safetyStyles.actions}>
-          <Button label="112 anrufen" icon={Phone} tone="emergency" onPress={() => Linking.openURL('tel:112')} />
-          <Button label="Vertrauensperson öffnen" icon={UsersRound} tone="ghost" onPress={() => router.push('/trusted-contacts')} />
+          <Button label={tx('112 anrufen', 'Call 112')} icon={Phone} tone="emergency" onPress={() => Linking.openURL('tel:112')} />
+          <Button label={tx('Vertrauensperson öffnen', 'Open trusted person')} icon={UsersRound} tone="ghost" onPress={() => router.push('/trusted-contacts')} />
         </View>
-        <Text style={safetyStyles.prototypeNote}>Im Browser kann der Telefonlink je nach Gerät nicht ausgeführt werden.</Text>
+        <Text style={safetyStyles.prototypeNote}>{tx('Im Browser kann der Telefonlink je nach Gerät nicht ausgeführt werden.', 'The phone link may not work in every browser or device.')}</Text>
       </AppScreen>
     );
   }
@@ -43,27 +46,27 @@ export default function SafetyCheckScreen() {
   return (
     <AppScreen motion="none">
       <SeoHead title="Safety-Check" description="Regelbasierter SAFEFLOOR Check für unmittelbar beobachtbare Warnzeichen." noIndex />
-      <AppHeader title="Kurzer Safety-Check" back />
-      <Eyebrow>REGELBASIERT · FUNKTIONIERT OHNE KI</Eyebrow>
-      <Title>Was kannst du gerade beobachten?</Title>
-      <Body muted style={safetyStyles.intro}>Keine Diagnose. Bitte beantworte nur klar sichtbare Warnzeichen.</Body>
+      <AppHeader title={tx('Kurzer Safety-Check', 'Quick safety check')} back />
+      <Eyebrow>{tx('REGELBASIERT · FUNKTIONIERT OHNE KI', 'RULE-BASED · WORKS WITHOUT AI')}</Eyebrow>
+      <Title>{tx('Was kannst du gerade beobachten?', 'What can you observe right now?')}</Title>
+      <Body muted style={safetyStyles.intro}>{tx('Keine Diagnose. Bitte beantworte nur klar sichtbare Warnzeichen.', 'Not a diagnosis. Please answer only clearly visible warning signs.')}</Body>
 
       <View style={safetyStyles.questions}>
-        {safetyQuestions.map((question, index) => (
+        {localizedQuestions.map((question, index) => (
           <Card key={question.id} tone={answers[question.id] === 'yes' ? 'emergency' : 'default'}>
             <View style={safetyStyles.questionHeader}><Text style={safetyStyles.questionIndex}>{String(index + 1).padStart(2, '0')}</Text><Text style={safetyStyles.question}>{question.question}</Text></View>
             <View style={safetyStyles.answerRow}>
-              <Pressable accessibilityRole="radio" accessibilityState={{ checked: answers[question.id] === 'no' }} onPress={() => answer(question.id, 'no')} style={[safetyStyles.answer, answers[question.id] === 'no' && safetyStyles.answerNo]}><Check color={answers[question.id] === 'no' ? colors.black : colors.gray} size={17} /><Text style={[safetyStyles.answerText, answers[question.id] === 'no' && safetyStyles.answerTextActive]}>Nein</Text></Pressable>
-              <Pressable accessibilityRole="radio" accessibilityState={{ checked: answers[question.id] === 'yes' }} onPress={() => answer(question.id, 'yes')} style={[safetyStyles.answer, answers[question.id] === 'yes' && safetyStyles.answerYes]}><X color={answers[question.id] === 'yes' ? colors.white : colors.gray} size={17} /><Text style={[safetyStyles.answerText, answers[question.id] === 'yes' && { color: colors.white }]}>Ja</Text></Pressable>
+              <Pressable accessibilityRole="radio" accessibilityState={{ checked: answers[question.id] === 'no' }} onPress={() => answer(question.id, 'no')} style={[safetyStyles.answer, answers[question.id] === 'no' && safetyStyles.answerNo]}><Check color={answers[question.id] === 'no' ? colors.black : colors.gray} size={17} /><Text style={[safetyStyles.answerText, answers[question.id] === 'no' && safetyStyles.answerTextActive]}>{tx('Nein', 'No')}</Text></Pressable>
+              <Pressable accessibilityRole="radio" accessibilityState={{ checked: answers[question.id] === 'yes' }} onPress={() => answer(question.id, 'yes')} style={[safetyStyles.answer, answers[question.id] === 'yes' && safetyStyles.answerYes]}><X color={answers[question.id] === 'yes' ? colors.white : colors.gray} size={17} /><Text style={[safetyStyles.answerText, answers[question.id] === 'yes' && { color: colors.white }]}>{tx('Ja', 'Yes')}</Text></Pressable>
             </View>
           </Card>
         ))}
       </View>
       {complete ? (
-        <Card tone="cyan"><View style={safetyStyles.calmResult}><ShieldCheck color={colors.success} size={24} /><View style={safetyStyles.resultCopy}><Text style={safetyStyles.resultTitle}>Keine dieser Warnangaben ausgewählt.</Text><Text style={safetyStyles.resultText}>Du kannst mit einer ruhigen Übung fortfahren. Wenn sich etwas verschlechtert, hole reale Hilfe.</Text></View></View></Card>
+        <Card tone="cyan"><View style={safetyStyles.calmResult}><ShieldCheck color={colors.success} size={24} /><View style={safetyStyles.resultCopy}><Text style={safetyStyles.resultTitle}>{tx('Keine dieser Warnangaben ausgewählt.', 'None of these warning signs selected.')}</Text><Text style={safetyStyles.resultText}>{tx('Du kannst mit einer ruhigen Übung fortfahren. Wenn sich etwas verschlechtert, hole reale Hilfe.', 'You can continue with a calm exercise. If anything gets worse, seek real-world help.')}</Text></View></View></Card>
       ) : null}
-      <Button label="Zur ruhigen Unterstützung" onPress={() => router.replace('/(tabs)/help')} disabled={!complete} />
-      <Text style={safetyStyles.prototypeNote}>Bei Unsicherheit oder Verschlechterung nicht auf den Prototyp verlassen.</Text>
+      <Button label={tx('Zur ruhigen Unterstützung', 'Continue to calm support')} onPress={() => router.replace('/(tabs)/help')} disabled={!complete} />
+      <Text style={safetyStyles.prototypeNote}>{tx('Bei Unsicherheit oder Verschlechterung nicht auf den Prototyp verlassen.', 'Do not rely on the prototype if you are unsure or the situation gets worse.')}</Text>
     </AppScreen>
   );
 }
